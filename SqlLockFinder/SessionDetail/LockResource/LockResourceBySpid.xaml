@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="SqlLockFinder.SessionDetail.LockResource.LockResourceBySpid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SqlLockFinder.SessionDetail.LockResource"
+             mc:Ignorable="d" Height="auto" HorizontalAlignment="Stretch">
+    <StackPanel Orientation="Vertical" Margin="0,15,0,0">
+        <StackPanel Orientation="Horizontal">
+            <Label
+                Content="Locks with"/>
+            <Label
+                FontWeight="Bold"
+                Content="{Binding LockingSPID}"/>
+        </StackPanel>
+        <Line></Line>
+        <DataGrid
+            Name="LockedResourceGrid"
+            MaxHeight="300"
+            ItemsSource="{Binding LockedResourceDtos}"
+            AutoGenerateColumns="False" 
+            CanUserResizeColumns="True"
+            Height="auto"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Stretch"
+            IsReadOnly="True"
+            SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="FullObjectName" Width="auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="ShowLockedRow">+</Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="FullObjectName" Binding="{Binding Path=FullObjectName}" Width="auto"/>
+                <DataGridTextColumn Header="Description" Binding="{Binding Path=Description}" Width="125"/>
+                <DataGridTextColumn Header="Resource type" Binding="{Binding Path=ResourceType}" Width="auto"/>
+                <DataGridTextColumn Header="Mode" Binding="{Binding Path=Mode}" Width="auto"/>
+                <DataGridTextColumn Header="Status" Binding="{Binding Path=Status}" Width="auto" />
+                <DataGridTextColumn Header="Request type" Binding="{Binding Path=RequestType}" Width="auto"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </StackPanel>
+</UserControl>
