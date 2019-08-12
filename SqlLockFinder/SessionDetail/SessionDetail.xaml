@@ -49,9 +49,21 @@
                 <Label
                     HorizontalAlignment="Left"
                     Margin="0,15,0,0"
-                    Content="Locked resources:" />
+                    Content="Locked rows:" />
                 <ItemsControl
-                    ItemsSource="{Binding LockedSummary}">
+                    ItemsSource="{Binding LockedSummaryRows}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Label
+                    HorizontalAlignment="Left"
+                    Margin="0,15,0,0"
+                    Content="Locked pages:" />
+                <ItemsControl
+                    ItemsSource="{Binding LockedSummaryPages}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Label Content="{Binding}" />
@@ -64,7 +76,6 @@
                 HorizontalAlignment="Stretch"
                 Grid.Row="3"
                 Grid.ColumnSpan="2" />
-
         </Grid>
     </ScrollViewer>
 </UserControl>

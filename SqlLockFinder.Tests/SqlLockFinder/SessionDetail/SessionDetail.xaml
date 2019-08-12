@@ -51,7 +51,7 @@
                     Margin="0,15,0,0"
                     Content="Locked resources:" />
                 <ItemsControl
-                    ItemsSource="{Binding LockedSummary}">
+                    ItemsSource="{Binding LockedSummaryRows}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Label Content="{Binding}" />
