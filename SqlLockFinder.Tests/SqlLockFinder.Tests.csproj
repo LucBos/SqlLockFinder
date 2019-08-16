@@ -22,4 +22,10 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="SqlLockFinder\SessionDetail\SessionDetail.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+
 </Project>

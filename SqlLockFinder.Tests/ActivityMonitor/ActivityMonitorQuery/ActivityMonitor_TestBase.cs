@@ -1,33 +1,17 @@
-﻿using System.Data.SqlClient;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 
 namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
 {
-    public class ActivityMonitor_TestBase
+    public class ActivityMonitor_TestBase: DoubleConnectionBaseTest
     {
-        protected SqlConnection connection1;
-        protected SqlConnection connection2;
-        protected SqlTransaction transaction1;
-        protected SqlTransaction transaction2;
         protected CancellationTokenSource cancellationTokenSource;
 
         [SetUp]
         public void BaseSetup()
         {
-            connection1 =
-                new SqlConnection(
-                    "Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=True;Application Name=SqlLockFinder;Connection Timeout=30;");
-            connection2 =
-                new SqlConnection(
-                    "Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=True;Application Name=SqlLockFinder;Connection Timeout=30;");
-            connection1.Open();
-            connection2.Open();
-
-            transaction1 = connection1.BeginTransaction();
-            transaction2 = connection2.BeginTransaction();
             cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -35,12 +19,6 @@ namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
         public void BaseTeardown()
         {
             cancellationTokenSource?.Cancel();
-
-            transaction1?.Rollback();
-            transaction2?.Rollback();
-
-            connection1?.Close();
-            connection2?.Close();
         }
 
         protected void PerformIntensiveSqlTask()
