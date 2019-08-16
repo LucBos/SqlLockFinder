@@ -70,7 +70,7 @@ namespace SqlLockFinder
         private string InitializeDefaults()
         {
             return ConnectionstringTextBox.Text =
-                "Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=True;Application Name=SqlLockFinder;Connection Timeout=18000;";
+                "Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=True;Application Name=SqlLockFinder;Connection Timeout=60;";
         }
 
         private void Clicked(object sender, RoutedEventArgs e)

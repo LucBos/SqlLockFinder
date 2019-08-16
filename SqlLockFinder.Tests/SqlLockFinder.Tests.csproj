@@ -5,7 +5,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.60.6" />
+    <PackageReference Include="FluentAssertions" Version="5.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SqlLockFinder\SqlLockFinder.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration.ConfigurationManager">
+      <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\3.0.0-preview7-27912-14\ref\netcoreapp3.0\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
