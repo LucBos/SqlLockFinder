@@ -69,15 +69,24 @@ namespace SqlLockFinder.SessionDetail
             {
                 lockedResourceDtos = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(LockedSummary));
+                OnPropertyChanged(nameof(LockedSummaryRows));
+                OnPropertyChanged(nameof(LockedSummaryPages));
             }
         }
 
-        public List<string> LockedSummary => LockedResourceDtos
-                                                 ?.GroupBy(x => x.FullObjectName)
-                                                 ?.Select(x => $"{x.Key}: {x.Count()} entities")
-                                                 ?.ToList()
-                                             ?? new List<string>();
+        public List<string> LockedSummaryRows => LockedResourceDtos
+                                                     ?.Where(x => x.IsKeyLock)
+                                                     ?.GroupBy(x => x.FullObjectName)
+                                                     ?.Select(x => $"{x.Key}: {x.Count()} rows ({MakeSummaryMode(x)})")
+                                                     ?.ToList()
+                                                 ?? new List<string>();
+
+        public List<string> LockedSummaryPages => LockedResourceDtos
+                                                      ?.Where(x => x.IsPageLock)
+                                                      ?.GroupBy(x => x.FullObjectName)
+                                                      ?.Select(x => $"{x.Key}: {x.Count()} pages ({MakeSummaryMode(x)})")
+                                                      ?.ToList()
+                                                  ?? new List<string>();
 
         public SessionDto Session => SessionCircle?.Session;
 
@@ -94,10 +103,15 @@ namespace SqlLockFinder.SessionDetail
             {
                 CreateLockResourcesBySPID(queryResult.Result);
             }
-            else if(queryResult.Faulted)
+            else if (queryResult.Faulted)
             {
                 notifyUser.Notify(queryResult);
             }
+        }
+
+        private string MakeSummaryMode(IEnumerable<LockedResourceDto> x)
+        {
+            return x.GroupBy(e => e.Mode).Aggregate(string.Empty, (a, g) => $"{a}{g.Key}: {g.Count()}");
         }
 
         private void CreateLockResourcesBySPID(List<LockedResourceDto> lockedResources)
@@ -125,5 +139,4 @@ namespace SqlLockFinder.SessionDetail
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-
 }

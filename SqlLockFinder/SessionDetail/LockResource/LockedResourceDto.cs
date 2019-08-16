@@ -14,6 +14,10 @@
         public string RequestType { get; set; }
 
         public string FullObjectName => $"{SchemaName ?? ""}.{EntityName ?? ""}";
+        public bool IsKeyLock => ResourceType == "KEY";
+        public bool IsPageLock => ResourceType == "PAGE";
+        public bool IsTableLock => ResourceType == "OBJECT";
+        public bool IsDbLock => ResourceType == "DATABASE";
 
         public bool SameLockAs(LockedResourceDto other)
         {
