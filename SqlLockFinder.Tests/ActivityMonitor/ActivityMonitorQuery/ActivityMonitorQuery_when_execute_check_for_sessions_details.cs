@@ -11,7 +11,7 @@ using SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery;
 
 namespace SqlLockFinder.Tests.ActivityMonitor
 {
-    class ActivityMonitorQuery_when_execute_check_for_sessions_details: ActivityMonitor_TestBase
+    class ActivityMonitorQuery_when_execute_check_for_sessions_details: ActivityMonitorTestBase
     {
         [Test]
         public void It_should_return_the_resource_information_of_each_session()
@@ -23,8 +23,7 @@ namespace SqlLockFinder.Tests.ActivityMonitor
 
             queryResult.Result.Should().Contain(x =>
                 x.DatabaseName == "Northwind"
-                && x.CPU > 0
-                && x.MemoryUsage > 0
+                && x.TotalSessionCPUms > 0
                 && x.HostName.Trim() == Environment.MachineName
                 && x.OpenTransactions >= 1);
         }

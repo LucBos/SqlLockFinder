@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery;
 
 namespace SqlLockFinder.Tests.ActivityMonitor
 {
-    class ActivityMonitorQuery_when_execute_check_for_sessions_status : ActivityMonitor_TestBase
+    class ActivityMonitorQuery_when_execute_check_for_sessions_status : ActivityMonitorTestBase
     {
         [Test]
         public void It_should_return_all_background_sessions_from_all_databases()
@@ -35,14 +36,17 @@ namespace SqlLockFinder.Tests.ActivityMonitor
         }
 
         [Test]
-        public void It_should_return_all_runnable_sessions_from_all_databases()
+        public void It_should_return_all_running_sessions_from_all_databases()
         {
-            PerformIntensiveSqlTask();
+            var spid1 = connection1.Query<int>("SELECT @@SPID", transaction:transaction1).First();
+            connection1.ExecuteAsync(
+                @"SELECT SUM(CAST(message_id AS BIGINT)), SUM(CAST(object_id AS BIGINT)) from sys.messages CROSS JOIN sys.objects OPTION (MAXDOP  1)",
+                transaction1);
 
             var queryResult = new SqlLockFinder.ActivityMonitor.ActivityMonitorQuery(new TestConnectionContainer())
                 .Execute();
 
-            queryResult.Result.Where(x => x.DatabaseName == "Northwind")
+            queryResult.Result.Where(x => x.DatabaseName == "master")
                 .Should().Contain(x => x.Status.Trim() == "runnable" || x.Status.Trim() == "running");
         }
 
@@ -52,12 +56,12 @@ namespace SqlLockFinder.Tests.ActivityMonitor
             connection1.Query("USE Northwind", transaction: transaction1);
             connection1.ExecuteAsync(@"UPDATE dbo.Customers
                                     SET PostalCode = PostalCode
-                                    WHERE CustomerID = 'ALFKI'", transaction: transaction1);
+                                    WHERE CustomerID = 'ANTON'", transaction: transaction1);
 
             connection2.Query("USE Northwind", transaction: transaction2);
             connection2.ExecuteAsync(@"UPDATE dbo.Customers
                                     SET PostalCode = PostalCode
-                                    WHERE CustomerID = 'ALFKI'", transaction: transaction2);
+                                    WHERE CustomerID = 'ANTON'", transaction: transaction2);
 
             var queryResult = new SqlLockFinder.ActivityMonitor.ActivityMonitorQuery(new TestConnectionContainer())
                 .Execute();

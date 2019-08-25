@@ -29,6 +29,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
                 connection.ChangeDatabase(databaseName);
 
                 var spidStrings = spids.Select(x => x.ToString()).ToArray();
+
                 var result = connection
                     .Query<LockedResourceDto>(@"
 SELECT t.request_session_id AS SPID,

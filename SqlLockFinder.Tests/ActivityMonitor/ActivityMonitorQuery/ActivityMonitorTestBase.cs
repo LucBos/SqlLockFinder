@@ -5,13 +5,15 @@ using NUnit.Framework;
 
 namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
 {
-    public class ActivityMonitor_TestBase: DoubleConnectionBaseTest
+    public class ActivityMonitorTestBase : DoubleConnection_TestBase
     {
         protected CancellationTokenSource cancellationTokenSource;
+        private bool intensiveTaskBusy;
 
         [SetUp]
         public void BaseSetup()
         {
+            intensiveTaskBusy = false;
             cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -23,48 +25,40 @@ namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
 
         protected void PerformIntensiveSqlTask()
         {
-            var task = Task.Run(IntensiveSqlTask, cancellationTokenSource.Token);
-            while (!task.Status.Equals(TaskStatus.Running))
-            {
-                Thread.Sleep(100);
-            }
+            IntensiveSqlTask().Wait(500);
         }
 
-        private void IntensiveSqlTask()
+        private async Task IntensiveSqlTask()
         {
             connection1.Query("USE Northwind", transaction: transaction1);
 
-            connection1.ExecuteAsync(@"
+            await connection1.ExecuteAsync(@"
                     CREATE TABLE SplitThrash
                     (
                      id UNIQUEIDENTIFIER default newid(),
                      parent_id UNIQUEIDENTIFIER default newid(),
                      name VARCHAR(50) default cast(newid() as varchar(50))
-                    );");
+                    );", transaction: transaction1);
 
-            connection1.ExecuteAsync(@"
+            for (int i = 0; i < 10000; i++)
+            {
+                await connection1.ExecuteAsync(@"
                     SET NOCOUNT ON;
-                    INSERT INTO SplitThrash DEFAULT VALUES;
-                    GO  1000000");
+                    INSERT INTO SplitThrash DEFAULT VALUES;", transaction: transaction1);
+            }
 
-            connection1.ExecuteAsync(@"
+            await connection1.ExecuteAsync(@"
                     CREATE CLUSTERED INDEX [ClusteredSplitThrash] ON [dbo].[SplitThrash]
                     (
                      [id] ASC,
                      [parent_id] ASC
-                    );");
-
-            connection1.ExecuteAsync(@"
-                    UPDATE SplitThrash
-                    SET parent_id = newid(), id = newid();
-                    GO 10000");
+                    );", transaction: transaction1);
 
             while (true)
             {
-                connection1.ExecuteAsync(@"
-                        UPDATE dbo.Customers
-                        SET PostalCode = PostalCode
-                        WHERE CustomerID = 'ALFKI'", transaction: transaction1);
+                await connection1.ExecuteAsync(@"
+                    UPDATE SplitThrash
+                    SET parent_id = newid(), id = newid();", transaction: transaction1);
             }
         }
     }

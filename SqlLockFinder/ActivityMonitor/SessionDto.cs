@@ -11,12 +11,12 @@ namespace SqlLockFinder.ActivityMonitor
         public int OpenTransactions { get; set; }
         public string Command { get; set; }
         public string ProgramName { get; set; }
-        public int WaitTime { get; set; }
+        public int WaitTimeMs { get; set; }
         public string WaitType { get; set; }
         public string WaitResource { get; set; }
-        public int CPU { get; set; }
-        public int PhysicalIO { get; set; }
-        public int MemoryUsage { get; set; }
+        public int TotalSessionCPUms { get; set; }
+        public string PhysicalIO { get; set; }
+        public string MemoryUsage { get; set; }
         public DateTime LoginTime { get; set; }
         public DateTime LastBatch { get; set; }
         public string HostName { get; set; }

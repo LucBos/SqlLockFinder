@@ -8,7 +8,7 @@ using SqlLockFinder.SessionDetail.LockResource;
 
 namespace SqlLockFinder.Tests.SessionDetail.LockResource
 {
-    class GetLockResourcesBySpidQuery_when_execute : DoubleConnectionBaseTest
+    class GetLockResourcesBySpidQuery_when_execute : DoubleConnection_TestBase
     {
         [Test]
         public void It_should_be_able_to_return_key_locks()
@@ -19,12 +19,12 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
             connection1.Execute("USE Northwind", transaction: transaction1);
             connection2.Execute("USE Northwind", transaction: transaction2);
 
-            connection1.Execute(@"
+            connection1.ExecuteAsync(@"
                         UPDATE dbo.Customers
                         SET PostalCode = PostalCode
-                        WHERE CustomerID = 'ALFKI'", transaction: transaction1);
+                        WHERE CustomerID = 'BLAUS'", transaction: transaction1);
 
-            connection2.Execute(@"
+            connection2.ExecuteAsync(@"
                         UPDATE dbo.Customers
                         SET PostalCode = PostalCode
                         WHERE CustomerID = 'BERGS'", transaction: transaction2);
@@ -32,7 +32,7 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
             connection2.ExecuteAsync(@"
                         UPDATE dbo.Customers
                         SET PostalCode = PostalCode
-                        WHERE CustomerID = 'ALFKI'", transaction: transaction2);
+                        WHERE CustomerID = 'BLAUS'", transaction: transaction2);
 
             var queryResult = new GetLockResourcesBySpidQuery(new TestConnectionContainer())
                 .Execute(new[] {spid1, spid2}, "Northwind");
@@ -66,15 +66,15 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
             connection1.Execute("USE Northwind", transaction: transaction1);
             connection2.Execute("USE Northwind", transaction: transaction2);
 
-            connection1.Execute(@"
-                        UPDATE dbo.Customers WITH (PAGLOCK)
-                        SET PostalCode = PostalCode
-                        WHERE CustomerID = 'ALFKI'", transaction: transaction1);
+            connection1.ExecuteAsync(@"
+                        UPDATE dbo.Products WITH (PAGLOCK)
+                        SET ProductName = ProductName
+                        WHERE ProductID = 1", transaction: transaction1);
 
             connection2.ExecuteAsync(@"
-                        UPDATE dbo.Customers
-                        SET PostalCode = PostalCode
-                        WHERE CustomerID = 'BERGS'", transaction: transaction2);
+                        UPDATE dbo.Products
+                        SET ProductName = ProductName
+                        WHERE ProductID = 1", transaction: transaction2);
 
             var queryResult = new GetLockResourcesBySpidQuery(new TestConnectionContainer())
                 .Execute(new[] { spid1, spid2 }, "Northwind");
@@ -84,13 +84,13 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
                 && x.Mode == "X"
                 && x.Status == "GRANT"
                 && x.SPID == spid1
-                && x.FullObjectName == "dbo.Customers");
+                && x.FullObjectName == "dbo.Products");
             queryResult.Result.Should().Contain(x =>
                 x.IsPageLock
                 && x.Mode == "IU"
                 && x.Status == "WAIT"
                 && x.SPID == spid2
-                && x.FullObjectName == "dbo.Customers");
+                && x.FullObjectName == "dbo.Products");
         }
     }
 }

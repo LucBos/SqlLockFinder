@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
 {
-    public class ActivityMonitorQuery_when_execute_check_for_blocked_sessions: ActivityMonitor_TestBase
+    public class ActivityMonitorQuery_when_execute_check_for_blocked_sessions: ActivityMonitorTestBase
     {
         [Test]
         public void It_should_return_all_blocked_sessions_from_all_databases()
@@ -37,7 +37,7 @@ namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
                 && x.SPID == spid2
                 && x.Status.Trim() == "suspended"
                 && x.BlockedBy == spid1
-                && x.WaitTime > 1000);
+                && x.WaitTimeMs > 1000);
         }
     }
 }

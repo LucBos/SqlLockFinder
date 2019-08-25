@@ -15,7 +15,7 @@ namespace SqlLockFinder.Tests
         public IDbConnection GetConnection()
         {
             var connection = new SqlConnection(
-                "Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=True;Application Name=SqlLockFinder;Connection Timeout=30;");
+                "Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=False;Application Name=SqlLockFinder;Connection Timeout=30;");
             connection.Open();
             return connection;
         }

@@ -18,32 +18,33 @@ namespace SqlLockFinder.SessionDetail
         IEnumerable<SessionDto> LockedWith { get; set; }
     }
 
-    /// <summary>
-    /// Interaction logic for SessionDetail.xaml
-    /// </summary>
     public partial class SessionDetail : UserControl, ISessionDetail, INotifyPropertyChanged
     {
         private readonly IGetLockResourcesBySpidQuery getLockResourcesBySpidQuery;
         private readonly ILockResourceBySpidFactory lockResourceBySpidFactory;
         private readonly INotifyUser notifyUser;
+        private readonly ILockSummary lockSummary;
         private SessionCircle sessionCircle;
         private List<LockedResourceDto> lockedResourceDtos;
 
         public SessionDetail() : this(
             new GetLockResourcesBySpidQuery(ConnectionContainer.Instance),
             new LockResourceBySpidFactory(ConnectionContainer.Instance, new NotifyUser()),
-            new NotifyUser())
+            new NotifyUser(),
+            new LockSummary())
         {
         }
 
         public SessionDetail(
             IGetLockResourcesBySpidQuery getLockResourcesBySpidQuery,
             ILockResourceBySpidFactory lockResourceBySpidFactory,
-            INotifyUser notifyUser)
+            INotifyUser notifyUser,
+            ILockSummary lockSummary)
         {
             this.getLockResourcesBySpidQuery = getLockResourcesBySpidQuery;
             this.lockResourceBySpidFactory = lockResourceBySpidFactory;
             this.notifyUser = notifyUser;
+            this.lockSummary = lockSummary;
             this.DataContext = this;
             InitializeComponent();
         }
@@ -74,23 +75,15 @@ namespace SqlLockFinder.SessionDetail
             }
         }
 
-        public List<string> LockedSummaryRows => LockedResourceDtos
-                                                     ?.Where(x => x.IsKeyLock)
-                                                     ?.GroupBy(x => x.FullObjectName)
-                                                     ?.Select(x => $"{x.Key}: {x.Count()} rows ({MakeSummaryMode(x)})")
-                                                     ?.ToList()
-                                                 ?? new List<string>();
+        public IEnumerable<LockSummaryDto> LockedSummaryRows => lockSummary.ByKeyLock(lockedResourceDtos);
 
-        public List<string> LockedSummaryPages => LockedResourceDtos
-                                                      ?.Where(x => x.IsPageLock)
-                                                      ?.GroupBy(x => x.FullObjectName)
-                                                      ?.Select(x => $"{x.Key}: {x.Count()} pages ({MakeSummaryMode(x)})")
-                                                      ?.ToList()
-                                                  ?? new List<string>();
+        public IEnumerable<LockSummaryDto> LockedSummaryPages => lockSummary.ByPageLock(lockedResourceDtos);
 
         public SessionDto Session => SessionCircle?.Session;
 
         public IEnumerable<SessionDto> LockedWith { get; set; }
+
+        public bool ItemWasSelected => SessionCircle != null;
 
         private void RetrieveLocks()
         {
@@ -109,11 +102,6 @@ namespace SqlLockFinder.SessionDetail
             }
         }
 
-        private string MakeSummaryMode(IEnumerable<LockedResourceDto> x)
-        {
-            return x.GroupBy(e => e.Mode).Aggregate(string.Empty, (a, g) => $"{a}{g.Key}: {g.Count()}");
-        }
-
         private void CreateLockResourcesBySPID(List<LockedResourceDto> lockedResources)
         {
             BlockedResourcesBySpidStackPanel.Children.Clear();
@@ -128,8 +116,6 @@ namespace SqlLockFinder.SessionDetail
                 BlockedResourcesBySpidStackPanel.Children.Add(lockedResourceBySpid as UIElement);
             }
         }
-
-        public bool ItemWasSelected => SessionCircle != null;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

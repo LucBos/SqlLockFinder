@@ -8,10 +8,10 @@ namespace SqlLockFinder.SessionCanvas
 {
     public interface ICanvasWrapper
     {
-        void Add(UIElement uiElement, int zIndex);
-        void Remove(UIElement uiElement);
-        void RemoveAll<T>() where T: UIElement;
-        void SetPosition(UIElement uiElement, int x, int y);
+        void Add(object uiElement, int zIndex);
+        void Remove(object uiElement);
+        void RemoveAll<T>();
+        void SetPosition(object uiElement, int x, int y);
         int ActualWidth { get; }
         int ActualHeight { get; }
         void TrackMouse(SessionDetail.SessionOverview sessionOverview);
@@ -27,29 +27,29 @@ namespace SqlLockFinder.SessionCanvas
             this.canvas = canvas;
         }
 
-        public void Add(UIElement uiElement, int zIndex)
+        public void Add(object uiElement, int zIndex)
         {
-            canvas.Children.Add(uiElement);
-            Canvas.SetZIndex(uiElement, zIndex);
+            canvas.Children.Add(uiElement as UIElement);
+            Canvas.SetZIndex(uiElement as UIElement, zIndex);
         }
 
-        public void Remove(UIElement uiElement)
+        public void Remove(object uiElement)
         {
-            canvas.Children.Remove(uiElement);
+            canvas.Children.Remove(uiElement as UIElement);
         }
 
-        public void RemoveAll<T>() where T: UIElement
+        public void RemoveAll<T>()
         {
             foreach (var line in canvas.Children.OfType<T>().ToList())
             {
-                canvas.Children.Remove(line);
+                canvas.Children.Remove(line as UIElement);
             }
         }
 
-        public void SetPosition(UIElement uiElement, int x, int y)
+        public void SetPosition(object uiElement, int x, int y)
         {
-            Canvas.SetLeft(uiElement, x);
-            Canvas.SetTop(uiElement, y);
+            Canvas.SetLeft(uiElement as UIElement, x);
+            Canvas.SetTop(uiElement as UIElement, y);
         }
         public void TrackMouse(SessionDetail.SessionOverview sessionOverview)
         {

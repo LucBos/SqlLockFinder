@@ -15,6 +15,8 @@ namespace SqlLockFinder.SessionCanvas
     }
     public class SessionDrawer : ISessionDrawer
     {
+        public static Color FaultColor = Color.FromRgb(250, 166, 166);
+
         private readonly ISessionCircleFactory sessionCircleFactory;
         private ICanvasWrapper canvas;
         private readonly ISessionDetail sessionDetail;
@@ -40,7 +42,6 @@ namespace SqlLockFinder.SessionCanvas
 
             CreateOrUpdate(sessions);
             DestroyOld(sessions);
-            Move();
         }
 
         public void Move()
@@ -65,7 +66,7 @@ namespace SqlLockFinder.SessionCanvas
 
         public void Fault()
         {
-            canvas.SetColor(Color.FromRgb(250, 166, 166));
+            canvas.SetColor(FaultColor);
         }
 
         private void DestroyOld(List<SessionDto> sessions)

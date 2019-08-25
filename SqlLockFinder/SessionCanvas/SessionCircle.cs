@@ -8,7 +8,26 @@ using SqlLockFinder.Infrastructure;
 
 namespace SqlLockFinder.SessionCanvas
 {
-    public class SessionCircle
+    public interface ISessionCircle
+    {
+        Ellipse Ellipse { get; }
+        SessionDto Session { get; set; }
+        Object UiElement { get; set; }
+        int X { get; set; }
+        int Y { get; set; }
+        int SpeedX { get; set; }
+        int SpeedY { get; set; }
+        DateTime LastSpeedUpdate { get; set; }
+        int Size { get; set; }
+        bool Selected { get; set; }
+        event Action<SessionCircle> MouseOver;
+        event Action<SessionCircle> MouseLeave;
+        event Action<SessionCircle> MouseDown;
+        void Move();
+        void Revert();
+    }
+
+    public class SessionCircle : ISessionCircle
     {
         private int size;
         private SessionDto session;
@@ -32,9 +51,9 @@ namespace SqlLockFinder.SessionCanvas
 
             UiElement = canvas;
 
-            UiElement.MouseEnter += (sender, e) => MouseOver?.Invoke(this);
-            UiElement.MouseLeave += (sender, e) => MouseLeave?.Invoke(this);
-            UiElement.MouseDown += (sender, e) => MouseDown?.Invoke(this);
+            canvas.MouseEnter += (sender, e) => MouseOver?.Invoke(this);
+            canvas.MouseLeave += (sender, e) => MouseLeave?.Invoke(this);
+            canvas.MouseDown += (sender, e) => MouseDown?.Invoke(this);
         }
 
         public SessionDto Session
@@ -86,7 +105,7 @@ namespace SqlLockFinder.SessionCanvas
             Canvas.SetZIndex(textBlock, 10);
         }
 
-        public UIElement UiElement { get; set; }
+        public Object UiElement { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
 

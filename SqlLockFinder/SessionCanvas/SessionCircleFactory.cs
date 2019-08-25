@@ -6,7 +6,7 @@ namespace SqlLockFinder.SessionCanvas
 {
     public interface ISessionCircleFactory
     {
-        SessionCircle Create(SessionDto sessionDto, ISessionCircleList position);
+        ISessionCircle Create(SessionDto sessionDto, ISessionCircleList position);
     }
 
     public class SessionCircleFactory : ISessionCircleFactory
@@ -19,7 +19,7 @@ namespace SqlLockFinder.SessionCanvas
             this.sessionTooltip = sessionTooltip;
         }
 
-        public SessionCircle Create(SessionDto sessionDto, ISessionCircleList sessionCircles)
+        public ISessionCircle Create(SessionDto sessionDto, ISessionCircleList sessionCircles)
         {
             var position = sessionCircles.NonCollidingPoint(DefaultSize);
             var sessionCirlce = new SessionCircle

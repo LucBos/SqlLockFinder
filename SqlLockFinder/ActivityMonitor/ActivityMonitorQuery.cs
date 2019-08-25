@@ -29,28 +29,25 @@ namespace SqlLockFinder.ActivityMonitor
                 connection.ChangeDatabase("master");
                 var result = connection.Query<SessionDto>(@"
 SELECT
-    p.spid as SPID,
-    CASE WHEN s.is_user_process = 1 THEN 0 ELSE 1 END AS IsUserProcess,
-    p.loginame AS LoginName, 
-    ISNULL(db_name(p.dbid),N'') AS DatabaseName,
-    p.status AS Status,
-    p.open_tran AS OpenTransactions,
-    p.cmd AS Command,
-    p.program_name AS ProgramName,
-    p.waittime AS WaitTime,
-    CASE WHEN p.waittype = 0 THEN N'' ELSE p.lastwaittype END AS WaitType,
-    CASE WHEN p.waittype = 0 THEN N'' ELSE RTRIM(p.waitresource) END AS WaitResource,
-    p.cpu AS CPU,
-    p.physical_io AS PhysicalIO,
-    p.memusage AS MemoryUsage,
-    p.login_time AS LoginTime,
-    p.last_batch AS LastBatch,
-    p.hostname AS HostName,
-    p.net_address AS NetAddress,
-    p.blocked AS BlockedBy
-FROM master.dbo.sysprocesses p, master.sys.dm_exec_sessions s
-WHERE p.spid = s.session_id
-ORDER BY p.spid").ToList();
+       s.session_id AS SPID,
+       s.login_name AS LoginName,
+       DB_NAME(s.database_id) AS DatabaseName,
+       ISNULL(r.status, s.status) AS [Status],
+       s.open_transaction_count AS OpenTransactions,
+       ISNULL(( SELECT text FROM sys.dm_exec_sql_text(r.sql_handle)), r.command) AS Command,
+       s.[program_name] AS ProgramName,
+       r.wait_time AS [WaitTimeMs],
+       ISNULL(r.wait_type, r.last_wait_type + ' (last_wait_type)') AS WaitType,
+       r.wait_resource,
+       s.cpu_time AS [TotalSessionCPUms],
+       CASE WHEN (s.writes + s.reads) > 131072 THEN CAST(CAST(((s.writes + s.reads) *8/1024/1024.00) AS NUMERIC(9,2)) AS VARCHAR(4000)) + 'GB' ELSE CAST(CAST(((s.writes + s.reads) *8/1024.00) AS NUMERIC(9,2)) AS VARCHAR(4000)) + 'MB' END AS PhysicalIO,
+       CASE WHEN (s.memory_usage) > 131072 THEN CAST(CAST(((s.memory_usage) *8/1024/1024.00) AS NUMERIC(9,2)) AS VARCHAR(4000)) + 'GB' ELSE CAST(CAST(((s.memory_usage) *8/1024.00) AS NUMERIC(9,2)) AS VARCHAR(4000)) + 'MB' END AS MemoryUsage,
+       s.login_time AS LoginTime,
+       s.last_request_start_time AS LastBatchStarted,
+       s.[host_name] AS HostName,
+       r.blocking_session_id AS BlockedBy
+FROM sys.dm_exec_sessions s LEFT OUTER JOIN sys.dm_exec_requests r
+ON r.session_id = s.session_id").ToList();
                 queryResult.Result = result;
             }
             catch (Exception ex)

@@ -103,6 +103,7 @@ namespace SqlLockFinder
             {
                 sessions = value;
                 sessionDrawer.Draw(SessionsFiltered);
+                sessionDrawer.Move();
                 OnPropertyChanged(nameof(Sessions), nameof(Databases), nameof(ProgramNames), nameof(SessionsFiltered));
             }
         }
@@ -122,6 +123,7 @@ namespace SqlLockFinder
             {
                 databaseFilter = value;
                 sessionDrawer.Draw(SessionsFiltered);
+                sessionDrawer.Move();
                 OnPropertyChanged(nameof(DatabaseFilter), nameof(SessionsFiltered));
             }
         }
@@ -132,6 +134,7 @@ namespace SqlLockFinder
             {
                 programNameFilter = value;
                 sessionDrawer.Draw(SessionsFiltered);
+                sessionDrawer.Move();
                 OnPropertyChanged(nameof(ProgramNameFilter), nameof(SessionsFiltered));
             }
         }
