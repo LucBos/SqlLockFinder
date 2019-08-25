@@ -2,6 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using SqlLockFinder.ActivityMonitor;
+using SqlLockFinder.Infrastructure;
 using SqlLockFinder.SessionCanvas;
 using SqlLockFinder.SessionDetail;
 
@@ -14,6 +15,7 @@ namespace SqlLockFinder.Tests.SessionCanvas.SessionDrawer
         protected Mock<SqlLockFinder.SessionCanvas.SessionCircleList> sessionCircleList;
         protected Mock<ICanvasWrapper> canvasWrapper;
         protected Mock<ISessionDetail> sessionDetail;
+        protected Mock<ILineFactory> lineFactory;
 
         [SetUp]
         public void BaseSetup()
@@ -22,9 +24,11 @@ namespace SqlLockFinder.Tests.SessionCanvas.SessionDrawer
             sessionCircleList = new Mock<SqlLockFinder.SessionCanvas.SessionCircleList>{CallBase = true};
             canvasWrapper = new Mock<ICanvasWrapper>();
             sessionDetail = new Mock<ISessionDetail>();
+            lineFactory = new Mock<ILineFactory>();
             sessionDrawer = new SqlLockFinder.SessionCanvas.SessionDrawer(
                 sessionCircleFactory.Object,
                 sessionCircleList.Object,
+                lineFactory.Object,
                 canvasWrapper.Object,
                 sessionDetail.Object);
         }

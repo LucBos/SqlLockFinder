@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using SqlLockFinder.ActivityMonitor;
+using SqlLockFinder.Infrastructure;
 using SqlLockFinder.SessionDetail;
 
 namespace SqlLockFinder.SessionCanvas
@@ -21,17 +22,20 @@ namespace SqlLockFinder.SessionCanvas
         private ICanvasWrapper canvas;
         private readonly ISessionDetail sessionDetail;
         private ISessionCircleList sessionCircles;
+        private readonly ILineFactory lineFactory;
 
-        public SessionDrawer(ISessionCircleFactory sessionCircleFactory, ISessionCircleList sessionCircles,
+        public SessionDrawer(ISessionCircleFactory sessionCircleFactory, ISessionCircleList sessionCircles, ILineFactory lineFactory,
             ICanvasWrapper canvas, ISessionDetail sessionDetail)
         {
             this.sessionCircleFactory = sessionCircleFactory;
             this.sessionCircles = sessionCircles;
+            this.lineFactory = lineFactory;
             this.canvas = canvas;
             this.sessionDetail = sessionDetail;
         }
 
-        public SessionDrawer(ICanvasWrapper canvas, ISessionDetail sessionDetail) : this(new SessionCircleFactory(new SessionTooltip(canvas)), new SessionCircleList(), canvas, sessionDetail)
+        public SessionDrawer(ICanvasWrapper canvas, ISessionDetail sessionDetail) 
+            : this(new SessionCircleFactory(new SessionTooltip(canvas)), new SessionCircleList(), new LineFactory(), canvas, sessionDetail)
         { }
 
         public void Draw(List<SessionDto> sessions)
@@ -117,18 +121,16 @@ namespace SqlLockFinder.SessionCanvas
                 var blocking = sessionCircles.FirstOrDefault(x => x.Session.SPID == sessionCircle.Session.BlockedBy);
                 if (blocking != null)
                 {
-                    var line = new Line
-                    {
-                        X1 = sessionCircle.X + sessionCircle.Size / 2,
-                        Y1 = sessionCircle.Y + sessionCircle.Size / 2,
-                        X2 = blocking.X + sessionCircle.Size / 2,
-                        Y2 = blocking.Y + sessionCircle.Size / 2,
-                        Stroke = new SolidColorBrush(Colors.Red),
-                    };
+                    var line = lineFactory.Create(
+                        sessionCircle.X + sessionCircle.Size / 2,
+                        sessionCircle.Y + sessionCircle.Size / 2,
+                        blocking.X + blocking.Size / 2,
+                        blocking.Y + blocking.Size / 2,
+                        color: Colors.Red
+                    );
                     canvas.Add(line, 2);
                 }
             }
         }
     }
-
 }
