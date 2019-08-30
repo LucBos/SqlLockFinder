@@ -29,20 +29,20 @@ namespace SqlLockFinder.SessionCanvas
             return new Point(x, y);
         }
 
-        public bool Collides(ISessionCircle sessionCircle)
+        public virtual bool Collides(ISessionCircle sessionCircle)
         {
-            return CollidesBoundry(sessionCircle) 
+            return CollidesBoundry(sessionCircle.X, sessionCircle.Y, sessionCircle.Size) 
                    || this.Any(circle => circle != sessionCircle
                                       && CollidesX(sessionCircle.X, sessionCircle.Size, circle)
                                       && CollidesY(sessionCircle.Y, sessionCircle.Size, circle));
         }
 
-        private bool CollidesBoundry(ISessionCircle sessionCircle)
+        private bool CollidesBoundry(int x, int y, int size)
         {
-            return sessionCircle.Y <= 0
-                   || sessionCircle.Y + sessionCircle.Size >= MaxY
-                   || sessionCircle.X <= 0
-                   || sessionCircle.X + sessionCircle.Size >= MaxX;
+            return y <= 0
+                   || y + size >= MaxY
+                   || x <= 0
+                   || x + size >= MaxX;
         }
 
         public bool Collides(int x, int y, int size)
@@ -60,8 +60,8 @@ namespace SqlLockFinder.SessionCanvas
             return cirlce.X + cirlce.Size >= x && cirlce.X <= x + size;
         }
 
-        public int MaxX { get; set; }
-        public int MaxY { get; set; }
+        public virtual int MaxX { get; set; }
+        public virtual int MaxY { get; set; }
 
         public void DeselectAll()
         {

@@ -20,9 +20,7 @@ namespace SqlLockFinder.SessionCanvas
         DateTime LastSpeedUpdate { get; set; }
         int Size { get; set; }
         bool Selected { get; set; }
-        event Action<SessionCircle> MouseOver;
-        event Action<SessionCircle> MouseLeave;
-        event Action<SessionCircle> MouseDown;
+        void OnMouseDown(Action<ISessionCircle> action);
         void Move();
         void Revert();
     }
@@ -37,9 +35,9 @@ namespace SqlLockFinder.SessionCanvas
         private bool selected;
         private Ellipse selectedEllipse;
 
-        public event Action<SessionCircle> MouseOver;
-        public event Action<SessionCircle> MouseLeave;
-        public event Action<SessionCircle> MouseDown;
+        private event Action<SessionCircle> MouseOver;
+        private event Action<SessionCircle> MouseLeave;
+        private event Action<SessionCircle> MouseDown;
 
         public SessionCircle()
         {
@@ -152,6 +150,21 @@ namespace SqlLockFinder.SessionCanvas
             Canvas.SetTop(selectedEllipse, -2);
             Canvas.SetZIndex(Ellipse, 1);
             Canvas.SetZIndex(selectedEllipse, 0);
+        }
+
+        public void OnMouseDown(Action<ISessionCircle> action)
+        {
+            MouseDown += action;
+        }
+
+        public void OnMouseOver(Action<ISessionCircle> action)
+        {
+            MouseOver += action;
+        }
+
+        public void OnMouseLeave(Action<ISessionCircle> action)
+        {
+            MouseLeave += action;
         }
 
         public void Move()

@@ -32,8 +32,8 @@ namespace SqlLockFinder.SessionCanvas
                 Size = DefaultSize,
             };
 
-            sessionCirlce.MouseOver += circle => sessionTooltip.ShowSummary(circle.Session);
-            sessionCirlce.MouseLeave += circle => sessionTooltip.HideSummary(circle.Session);
+            sessionCirlce.OnMouseOver(circle => sessionTooltip.ShowSummary(circle.Session));
+            sessionCirlce.OnMouseLeave(circle => sessionTooltip.HideSummary(circle.Session));
 
             return sessionCirlce;
         }

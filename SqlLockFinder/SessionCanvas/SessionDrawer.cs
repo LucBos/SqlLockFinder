@@ -93,7 +93,7 @@ namespace SqlLockFinder.SessionCanvas
                 if (sessionCircle == null)
                 {
                     sessionCircle = sessionCircleFactory.Create(sessionDto, sessionCircles);
-                    sessionCircle.MouseDown += SelectSessionCircle;
+                    sessionCircle.OnMouseDown(SelectSessionCircle);
                     sessionCircles.Add(sessionCircle);
                     canvas.Add(sessionCircle.UiElement, sessionDto.BlockedBy.HasValue ? 3 : 1);
                 }
@@ -102,7 +102,7 @@ namespace SqlLockFinder.SessionCanvas
             }
         }
 
-        private void SelectSessionCircle(SessionCircle sessionCircle)
+        private void SelectSessionCircle(ISessionCircle sessionCircle)
         {
             sessionCircles.DeselectAll();
             sessionCircle.Selected = true;

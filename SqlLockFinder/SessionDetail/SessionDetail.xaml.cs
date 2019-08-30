@@ -14,7 +14,7 @@ namespace SqlLockFinder.SessionDetail
 {
     public interface ISessionDetail
     {
-        SessionCircle SessionCircle { get; set; }
+        ISessionCircle SessionCircle { get; set; }
         IEnumerable<SessionDto> LockedWith { get; set; }
     }
 
@@ -24,7 +24,7 @@ namespace SqlLockFinder.SessionDetail
         private readonly ILockResourceBySpidFactory lockResourceBySpidFactory;
         private readonly INotifyUser notifyUser;
         private readonly ILockSummary lockSummary;
-        private SessionCircle sessionCircle;
+        private ISessionCircle sessionCircle;
         private List<LockedResourceDto> lockedResourceDtos;
 
         public SessionDetail() : this(
@@ -49,7 +49,7 @@ namespace SqlLockFinder.SessionDetail
             InitializeComponent();
         }
 
-        public SessionCircle SessionCircle
+        public ISessionCircle SessionCircle
         {
             get => sessionCircle;
             set
