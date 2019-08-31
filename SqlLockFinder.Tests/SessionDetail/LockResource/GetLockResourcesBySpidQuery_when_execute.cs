@@ -29,10 +29,14 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
                         SET PostalCode = PostalCode
                         WHERE CustomerID = 'BERGS'", transaction: transaction2);
 
+            Thread.Sleep(600);
+
             connection2.ExecuteAsync(@"
                         UPDATE dbo.Customers
                         SET PostalCode = PostalCode
                         WHERE CustomerID = 'BLAUS'", transaction: transaction2);
+
+            Thread.Sleep(600);
 
             var queryResult = new GetLockResourcesBySpidQuery(new TestConnectionContainer())
                 .Execute(new[] {spid1, spid2}, "Northwind");
@@ -71,10 +75,14 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
                         SET ProductName = ProductName
                         WHERE ProductID = 1", transaction: transaction1);
 
+            Thread.Sleep(600);
+
             connection2.ExecuteAsync(@"
                         UPDATE dbo.Products
                         SET ProductName = ProductName
                         WHERE ProductID = 1", transaction: transaction2);
+
+            Thread.Sleep(600);
 
             var queryResult = new GetLockResourcesBySpidQuery(new TestConnectionContainer())
                 .Execute(new[] { spid1, spid2 }, "Northwind");

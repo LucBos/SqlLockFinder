@@ -47,7 +47,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
         {
             if (LockedResourceGrid.SelectedItem is LockedResourceDto selectedItem)
             {
-                var queryResult = getRowOfLockedResourceQuery.Execute(Session, selectedItem);
+                var queryResult = getRowOfLockedResourceQuery.Execute(Session.DatabaseName, selectedItem.FullObjectName, selectedItem.Description);
 
                 if (queryResult.HasValue)
                 {

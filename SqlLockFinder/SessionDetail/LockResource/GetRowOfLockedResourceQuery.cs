@@ -8,10 +8,10 @@ namespace SqlLockFinder.SessionDetail.LockResource
 {
     public interface IGetRowOfLockedResourceQuery
     {
-        QueryResult<dynamic> Execute(SessionDto sessionDto, LockedResourceDto lockedResourceDto);
+        QueryResult<dynamic> Execute(string databaseName, string fullObjectName, string lockres);
     }
 
-    class GetRowOfLockedResourceQuery : IGetRowOfLockedResourceQuery
+    public class GetRowOfLockedResourceQuery : IGetRowOfLockedResourceQuery
     {
         private readonly IConnectionContainer connectionContainer;
 
@@ -20,13 +20,13 @@ namespace SqlLockFinder.SessionDetail.LockResource
             this.connectionContainer = connectionContainer;
         }
 
-        public QueryResult<dynamic> Execute(SessionDto sessionDto, LockedResourceDto lockedResourceDto)
+        public QueryResult<dynamic> Execute(string databaseName, string fullObjectName, string lockres)
         {
             var connection = connectionContainer.GetConnection();
-            connection.ChangeDatabase(sessionDto.DatabaseName);
+            connection.ChangeDatabase(databaseName);
 
             var indexes = connection.Query<SpHelpIndexResult>("EXEC sp_helpindex @objectname",
-                new {objectname = lockedResourceDto.FullObjectName});
+                new {objectname = fullObjectName});
             var queryResult = new QueryResult<dynamic>();
 
             foreach (var index in indexes)
@@ -35,8 +35,8 @@ namespace SqlLockFinder.SessionDetail.LockResource
                 {
                     var rows = connection.Query<dynamic>($@"
 SELECT *
-FROM {lockedResourceDto.FullObjectName} v2 WITH(INDEX={index.index_name})
-WHERE %%lockres%% = @description", new {description = lockedResourceDto.Description});
+FROM {fullObjectName} v2 WITH(INDEX={index.index_name})
+WHERE %%lockres%% = @description", new {description = lockres});
 
                     if (rows.Any())
                     {
@@ -56,7 +56,7 @@ WHERE %%lockres%% = @description", new {description = lockedResourceDto.Descript
                         queryResult.Errors.Add(exc.ToString());
                     }
 
-                    connection.ChangeDatabase(sessionDto.DatabaseName);
+                    connection.ChangeDatabase(databaseName);
                 }
             }
 
