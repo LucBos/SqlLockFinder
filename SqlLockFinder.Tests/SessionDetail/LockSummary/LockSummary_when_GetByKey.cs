@@ -20,7 +20,7 @@ namespace SqlLockFinder.Tests.SessionDetail.LockSummary
                 CreateLockResource("dbo", "table1", "X", "PAGE"),
             };
 
-            var result = new SqlLockFinder.SessionDetail.LockSummary().ByKeyLock(lockedResources);
+            var result = new SqlLockFinder.SessionDetail.LockSummary.LockSummary().ByKeyLock(lockedResources);
 
             result.Should().HaveCount(3);
             result.Should().Contain(x => x.FullObjectName == "dbo.table1" && x.Mode == "X" && x.Count == 2);

@@ -3,7 +3,6 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SqlLockFinder.ActivityMonitor;
-using SqlLockFinder.SessionCanvas;
 
 namespace SqlLockFinder.Tests.SessionCanvas.SessionDrawer
 {

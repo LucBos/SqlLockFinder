@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -9,6 +8,7 @@ using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Infrastructure;
 using SqlLockFinder.SessionCanvas;
 using SqlLockFinder.SessionDetail.LockResource;
+using SqlLockFinder.SessionDetail.LockSummary;
 
 namespace SqlLockFinder.SessionDetail
 {
@@ -31,7 +31,7 @@ namespace SqlLockFinder.SessionDetail
             new GetLockResourcesBySpidQuery(ConnectionContainer.Instance),
             new LockResourceBySpidFactory(ConnectionContainer.Instance, new NotifyUser()),
             new NotifyUser(),
-            new LockSummary())
+            new LockSummary.LockSummary())
         {
         }
 

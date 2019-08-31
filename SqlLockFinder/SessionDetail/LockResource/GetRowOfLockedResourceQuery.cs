@@ -1,7 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Linq;
 using Dapper;
-using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Infrastructure;
 
 namespace SqlLockFinder.SessionDetail.LockResource

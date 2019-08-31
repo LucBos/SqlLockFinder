@@ -2,7 +2,7 @@
 using System.Linq;
 using SqlLockFinder.SessionDetail.LockResource;
 
-namespace SqlLockFinder.SessionDetail
+namespace SqlLockFinder.SessionDetail.LockSummary
 {
     public interface ILockSummary
     {

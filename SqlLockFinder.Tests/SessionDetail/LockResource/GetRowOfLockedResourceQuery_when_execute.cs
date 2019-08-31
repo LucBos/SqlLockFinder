@@ -1,10 +1,8 @@
 ﻿using System.Linq;
 using Dapper;
-using FluentAssertions;
 using NUnit.Framework;
-using SqlLockFinder.ActivityMonitor;
 
-namespace SqlLockFinder.Tests.SessionDetail.LockResource.GetRowOfLockedResourceQuery
+namespace SqlLockFinder.Tests.SessionDetail.LockResource
 {
     public class GetRowOfLockedResourceQuery_when_execute: SingleConnection_TestBase
     {

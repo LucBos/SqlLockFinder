@@ -1,14 +1,9 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Dapper;
 using FluentAssertions;
 using NUnit.Framework;
-using SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery;
 
-namespace SqlLockFinder.Tests.ActivityMonitor
+namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
 {
     class ActivityMonitorQuery_when_execute_check_for_sessions_status : ActivityMonitorTestBase
     {

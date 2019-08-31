@@ -1,4 +1,4 @@
-﻿namespace SqlLockFinder.SessionDetail
+﻿namespace SqlLockFinder.SessionDetail.LockSummary
 {
     public class LockSummaryDto
     {

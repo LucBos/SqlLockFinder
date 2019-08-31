@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Threading;
-using Dapper;
 using NUnit.Framework;
 
 namespace SqlLockFinder.Tests
