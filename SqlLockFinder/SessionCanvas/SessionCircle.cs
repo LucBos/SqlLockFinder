@@ -76,7 +76,7 @@ namespace SqlLockFinder.SessionCanvas
                     Ellipse.Fill = new SolidColorBrush(Colors.Gray);
                     break;
                 case "background":
-                    Ellipse.Fill = new SolidColorBrush(Colors.Lavender);
+                    Ellipse.Fill = new SolidColorBrush(Colors.DarkSlateGray);
                     break;
                 default:
                     Ellipse.Fill = new SolidColorBrush(Colors.Green);

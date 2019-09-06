@@ -22,6 +22,7 @@ namespace SqlLockFinder
         private List<SessionDto> sessions;
         private string databaseFilter;
         private string programNameFilter;
+        private string DefaultFilter;
 
         public MainWindow(IConnectionContainer connectionContainer, IActivityMonitorQuery activityMonitorQuery, ISessionDrawer sessionDrawer)
         {
@@ -84,23 +85,38 @@ namespace SqlLockFinder
             }
         }
 
+        private bool IsDefaultFilter(string filter)
+        {
+            return string.IsNullOrEmpty(filter) || filter == DefaultFilter;
+        }
+
         public List<SessionDto> Sessions
         {
             get => sessions;
             private set
             {
                 sessions = value;
+                Databases = Sessions?.Select(x => x.DatabaseName)?.Distinct()?.ToList();
+                DefaultFilter = "All";
+                Databases?.Insert(0, DefaultFilter);
+
+                ProgramNames = Sessions?.Select(x => x.ProgramName)?.Distinct()?.ToList();
+                ProgramNames?.Insert(0, DefaultFilter);
+
+                ProgramNameFilter ??= DefaultFilter;
+                DatabaseFilter ??= DefaultFilter;
+
                 sessionDrawer.Draw(SessionsFiltered);
                 sessionDrawer.Move();
-                OnPropertyChanged(nameof(Sessions), nameof(Databases), nameof(ProgramNames), nameof(SessionsFiltered));
+                OnPropertyChanged(nameof(Sessions), nameof(Databases), nameof(ProgramNames), nameof(SessionsFiltered), nameof(ProgramNameFilter), nameof(DatabaseFilter));
             }
         }
 
         public List<SessionDto> SessionsFiltered
         {
             get => sessions?.Where(x => 
-                (string.IsNullOrEmpty(DatabaseFilter) || x.DatabaseName == DatabaseFilter)
-                && (string.IsNullOrEmpty(ProgramNameFilter) || x.ProgramName == ProgramNameFilter)
+                (IsDefaultFilter(DatabaseFilter) || x.DatabaseName == DatabaseFilter)
+                && (IsDefaultFilter(ProgramNameFilter) || x.ProgramName == ProgramNameFilter)
             )?.ToList();
         }
 
@@ -127,8 +143,8 @@ namespace SqlLockFinder
             }
         }
 
-        public List<string> Databases => Sessions?.Select(x => x.DatabaseName)?.Distinct()?.ToList();
-        public List<string> ProgramNames => Sessions?.Select(x => x.ProgramName)?.Distinct()?.ToList();
+        public List<string> Databases { get; set; }
+        public List<string> ProgramNames { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
