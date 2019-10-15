@@ -7,8 +7,7 @@
              mc:Ignorable="d"
              Width="300" 
              Height="350" 
-             IsHitTestVisible="False"
-            Padding="10"
+             Padding="10"
              Opacity="0.7">
     <Grid>
         <Grid.RowDefinitions>
@@ -99,7 +98,8 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
             DataContext="{Binding Session}"
-            Text="{Binding Command}"/>
+            Text="{Binding Command}"
+            MouseDown="ShowCommand"/>
         <Label
             Grid.Row="6"
             Grid.Column="0"

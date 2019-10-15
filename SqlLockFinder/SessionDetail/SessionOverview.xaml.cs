@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Infrastructure;
 
@@ -37,6 +39,11 @@ namespace SqlLockFinder.SessionDetail
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void ShowCommand(object sender, MouseEventArgs args)
+        {
+            MessageBox.Show(Session.Command);
         }
     }
 }
