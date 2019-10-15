@@ -8,12 +8,16 @@
              d:DesignHeight="450" d:DesignWidth="800" Background="#66D3D3D3" 
              BorderBrush="White" 
              BorderThickness="1">
+    <UserControl.Resources>
+        <BitmapImage x:Key="KillImage" UriSource="/Content/kill.png" />
+    </UserControl.Resources>
     <ScrollViewer
         HorizontalScrollBarVisibility="Disabled">
         <Grid
             Visibility="{Binding ItemWasSelected, Converter={StaticResource BoolToHiddenConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="160" />
+                <RowDefinition Height="55" />
                 <RowDefinition Height="345" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -32,10 +36,24 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Text="{Binding Path=SessionCircle.Session.SPID}" />
+            <StackPanel
+                Grid.Row="1"
+                Orientation="Horizontal">
+                <Image
+                    Margin="5"
+                    Width="45"
+                    Height="45"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Source="{StaticResource KillImage}" 
+                    Stretch="Fill"
+                    MouseDown="KillSession"></Image>
+            </StackPanel>
+           
             <local:SessionOverview
                 x:Name="SessionOVerviewControl"
                 Margin="0,15,0,0"
-                Grid.Row="1"
+                Grid.Row="2"
                 Grid.ColumnSpan="2"
                 Padding="0"
                 HorizontalAlignment="Left"
@@ -43,7 +61,7 @@
             <StackPanel
                 Orientation="Vertical"
                 HorizontalAlignment="Stretch"
-                Grid.Row="2"
+                Grid.Row="3"
                 Grid.ColumnSpan="2"
                 MaxHeight="500">
                 <Label
@@ -74,7 +92,7 @@
             <StackPanel
                 Name="BlockedResourcesBySpidStackPanel"
                 HorizontalAlignment="Stretch"
-                Grid.Row="3"
+                Grid.Row="4"
                 Grid.ColumnSpan="2" />
         </Grid>
     </ScrollViewer>

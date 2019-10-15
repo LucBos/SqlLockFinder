@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Threading;
 using NUnit.Framework;
@@ -37,7 +38,6 @@ namespace SqlLockFinder.Tests
             connection1?.Close();
             connection2?.Close();
         }
-
     }
 
     public class SingleConnection_TestBase
@@ -62,9 +62,7 @@ namespace SqlLockFinder.Tests
         public void TeardownConnections()
         {
             cancellationTokenSource?.Cancel();
-            transaction1?.Rollback();
             connection1?.Close();
         }
-
     }
 }

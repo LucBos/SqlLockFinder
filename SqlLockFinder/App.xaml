@@ -8,6 +8,5 @@
         <infrastructure:BoolToVisibilityConverter
             x:Key="BoolToHiddenConverter"
             TrueValue="Visible" FalseValue="Hidden" />
-        <BitmapImage x:Key="BlackPolka" UriSource="/Content/black-polka.jpg" />
     </Application.Resources>
 </Application>

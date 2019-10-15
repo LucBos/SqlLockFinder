@@ -4,9 +4,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Infrastructure;
 using SqlLockFinder.SessionCanvas;
+using SqlLockFinder.SessionDetail.Kill;
 using SqlLockFinder.SessionDetail.LockResource;
 using SqlLockFinder.SessionDetail.LockSummary;
 
@@ -22,6 +24,7 @@ namespace SqlLockFinder.SessionDetail
     {
         private readonly IGetLockResourcesBySpidQuery getLockResourcesBySpidQuery;
         private readonly ILockResourceBySpidFactory lockResourceBySpidFactory;
+        private readonly IKillSessionQuery killSessionQuery;
         private readonly INotifyUser notifyUser;
         private readonly ILockSummary lockSummary;
         private ISessionCircle sessionCircle;
@@ -30,6 +33,7 @@ namespace SqlLockFinder.SessionDetail
         public SessionDetail() : this(
             new GetLockResourcesBySpidQuery(ConnectionContainer.Instance),
             new LockResourceBySpidFactory(ConnectionContainer.Instance, new NotifyUser()),
+            new KillSessionQuery(ConnectionContainer.Instance),
             new NotifyUser(),
             new LockSummary.LockSummary())
         {
@@ -38,11 +42,13 @@ namespace SqlLockFinder.SessionDetail
         public SessionDetail(
             IGetLockResourcesBySpidQuery getLockResourcesBySpidQuery,
             ILockResourceBySpidFactory lockResourceBySpidFactory,
+            IKillSessionQuery killSessionQuery,
             INotifyUser notifyUser,
             ILockSummary lockSummary)
         {
             this.getLockResourcesBySpidQuery = getLockResourcesBySpidQuery;
             this.lockResourceBySpidFactory = lockResourceBySpidFactory;
+            this.killSessionQuery = killSessionQuery;
             this.notifyUser = notifyUser;
             this.lockSummary = lockSummary;
             this.DataContext = this;
@@ -55,7 +61,7 @@ namespace SqlLockFinder.SessionDetail
             set
             {
                 sessionCircle = value;
-                SessionOVerviewControl.Session = sessionCircle.Session;
+                SessionOVerviewControl.Session = sessionCircle?.Session;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ItemWasSelected));
                 OnPropertyChanged(nameof(Session));
@@ -87,6 +93,8 @@ namespace SqlLockFinder.SessionDetail
 
         private void RetrieveLocks()
         {
+            if (Session == null) return;
+
             var spids = LockedWith
                 .Select(x => x.SPID)
                 .Union(new[] {Session.SPID})
@@ -114,6 +122,27 @@ namespace SqlLockFinder.SessionDetail
                 var lockedResourceBySpid =
                     lockResourceBySpidFactory.Create(otherResources.Key, bothLockedResources, Session);
                 BlockedResourcesBySpidStackPanel.Children.Add(lockedResourceBySpid as UIElement);
+            }
+        }
+
+        private void KillSession(object sender, MouseButtonEventArgs e)
+        {
+            if (MessageBox.Show(
+                    $"Are you certain you want to kill session with spid {Session?.SPID}?", 
+                    "Kill session?",
+                    MessageBoxButton.YesNo) == MessageBoxResult.No)
+            {
+                return;
+            }
+
+            var queryResult = killSessionQuery.Execute(Session.SPID);
+            if (queryResult.Faulted)
+            {
+                notifyUser.Notify(queryResult);
+            }
+            else
+            {
+                SessionCircle = null;
             }
         }
 

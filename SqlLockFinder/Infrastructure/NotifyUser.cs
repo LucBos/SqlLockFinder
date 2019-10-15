@@ -6,12 +6,12 @@ namespace SqlLockFinder.Infrastructure
 {
     public interface INotifyUser
     {
-        void Notify<T>(QueryResult<T> queryResult);
+        void Notify(QueryResult queryResult);
     }
 
     public class NotifyUser : INotifyUser
     {
-        public void Notify<T>(QueryResult<T> queryResult)
+        public void Notify(QueryResult queryResult)
         {
             if (queryResult.Errors.Any())
             {
