@@ -38,7 +38,8 @@ namespace SqlLockFinder.SessionDetail
 
             sessionOverview = new SessionOverview(session)
             {
-                Background = new SolidColorBrush(Colors.White)
+                Background = new SolidColorBrush(Colors.White),
+                IsHitTestVisible = false
             };
             canvasWrapper.Add(sessionOverview, 10);
             canvasWrapper.TrackMouse(sessionOverview);
