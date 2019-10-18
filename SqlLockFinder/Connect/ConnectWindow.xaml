@@ -1,0 +1,174 @@
+﻿<Window x:Class="SqlLockFinder.Connect.ConnectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SqlLockFinder.Connect"
+        mc:Ignorable="d"
+        Title="ConnectWindow" 
+        Height="255" 
+        Width="600" 
+        ResizeMode="NoResize" 
+        HorizontalAlignment="Center" 
+        VerticalAlignment="Center">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+       
+        <StackPanel
+            Margin="5"
+            Orientation="Horizontal">
+            <Label>Connect by: </Label>
+            <RadioButton 
+                IsChecked="{Binding Path=ConnectBy, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Properties}" 
+                GroupName="ConnectBy"
+                Margin="6"
+                Content="Properties"/>
+            <RadioButton 
+                IsChecked="{Binding Path=ConnectBy, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=UDL}"
+                GroupName="ConnectBy"
+                Margin="6"
+                Content="UDL"/>
+            <RadioButton 
+                IsChecked="{Binding Path=ConnectBy, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Connectionstring}"
+                GroupName="ConnectBy"
+                Margin="6"
+                Content="Connectionstring"/>
+        </StackPanel>
+        <Grid
+            Visibility="{Binding Path=ConnectBy, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Properties}"
+            Margin="5"
+            Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label
+                Grid.Row="0"
+                Grid.Column="0">
+                Server name:
+            </Label>
+            <TextBox
+                Grid.Row="0"
+                Grid.Column="1"
+                Height="25"/>
+            <Label
+                Grid.Row="1"
+                Grid.Column="0">
+                Authentication:
+            </Label>
+            <ComboBox
+                ItemsSource="{Binding AuthenticationModes}"
+                SelectedItem="{Binding SelectedAuthentication}"
+                Grid.Row="1"
+                Grid.Column="1"
+                Height="25"/>
+            <Label
+                Margin="10,0,0,0"
+                Grid.Row="2"
+                Grid.Column="0">
+                Username:
+            </Label>
+            <TextBox
+                Text="{Binding Username}"
+                Margin="10,0,0,0"
+                Grid.Row="2"
+                Grid.Column="1"
+                Height="25"
+                IsEnabled="{Binding EnableCustomAuthentication}"/>
+            <Label
+                Margin="10,0,0,0"
+                Grid.Row="3"
+                Grid.Column="0">
+                Password:
+            </Label>
+            <PasswordBox
+                Name="PasswordBox"
+                Margin="10,0,0,0"
+                Grid.Row="3"
+                Grid.Column="1"
+                Height="25"
+                IsEnabled="{Binding EnableCustomAuthentication}"/>
+        </Grid>
+        <Grid
+            Visibility="{Binding Path=ConnectBy, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=UDL}"
+            Margin="5"
+            Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Label
+                Grid.Row="0"
+                Grid.Column="0">
+                File:
+            </Label>
+            <TextBox
+                Grid.Row="0"
+                Grid.Column="1"
+                Margin="0,0,100,0"
+                IsEnabled="False"
+                Text="{Binding FileName}"
+                Height="25"/>
+            <Button
+                Grid.Row="0"
+                Grid.Column="1"
+                HorizontalAlignment="Right"
+                Height="25"
+                Width="100"
+                Click="OpenUDL">Open</Button>
+        </Grid>
+        <Grid
+            Visibility="{Binding Path=ConnectBy, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Connectionstring}"
+            Margin="5"
+            Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label
+                Grid.Row="0"
+                Grid.Column="0">
+                Connectionstring:
+            </Label>
+            <TextBox
+                Text="{Binding Connectionstring}"
+                Grid.Row="0"
+                Grid.Column="1"
+                Height="25"/>
+        </Grid>
+        <StackPanel
+            HorizontalAlignment="Right"
+            Grid.Row="2"
+            Orientation="Horizontal">
+            <Button 
+                Margin="5"
+                Width="100" 
+                Height="25"
+                Click="Connect">Connect</Button>
+            <Button 
+                Margin="5"
+                Width="100" 
+                Height="25"
+                Click="Cancel">Cancel</Button>
+        </StackPanel>
+    </Grid>
+   
+</Window>

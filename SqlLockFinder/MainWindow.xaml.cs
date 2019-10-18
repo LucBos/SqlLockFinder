@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Threading;
 using SqlLockFinder.ActivityMonitor;
+using SqlLockFinder.Connect;
 using SqlLockFinder.Infrastructure;
 using SqlLockFinder.SessionCanvas;
 
@@ -31,7 +32,6 @@ namespace SqlLockFinder
             this.sessionDrawer = sessionDrawer;
             this.DataContext = this;
             InitializeComponent();
-            InitializeDefaults();
             InitializeCanvas();
         }
 
@@ -44,7 +44,6 @@ namespace SqlLockFinder
             InitializeComponent();
 
             this.sessionDrawer = new SessionDrawer(new CanvasWrapper(SessionCanvas), SessionDetailControl);
-            InitializeDefaults();
             InitializeCanvas();
         }
 
@@ -56,20 +55,17 @@ namespace SqlLockFinder
             timer.Start();
         }
 
-        private string InitializeDefaults()
-        {
-            return ConnectionstringTextBox.Text =
-                "Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=True;Application Name=SqlLockFinder;Connection Timeout=60;";
-        }
 
-        private void Clicked(object sender, RoutedEventArgs e)
+        private void Connect(object sender, RoutedEventArgs e)
         {
-            connectionContainer.Create(ConnectionstringTextBox.Text);
-
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(2);
-            timer.Tick += (sender2, e2) => RetrieveSessions();
-            timer.Start();
+            var connectionWindow = new ConnectWindow();
+            if (connectionWindow.ShowDialog() == true)
+            {
+                DispatcherTimer timer = new DispatcherTimer();
+                timer.Interval = TimeSpan.FromSeconds(2);
+                timer.Tick += (sender2, e2) => RetrieveSessions();
+                timer.Start();
+            }
         }
 
         private void RetrieveSessions()

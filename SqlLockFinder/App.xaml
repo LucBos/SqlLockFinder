@@ -8,5 +8,10 @@
         <infrastructure:BoolToVisibilityConverter
             x:Key="BoolToHiddenConverter"
             TrueValue="Visible" FalseValue="Hidden" />
+        <infrastructure:EnumBooleanConverter
+            x:Key="EnumBooleanConverter" />
+        <infrastructure:EnumToVisibilityConverter
+            x:Key="EnumToVisibilityConverter"
+            TrueValue="Visible" FalseValue="Hidden" />
     </Application.Resources>
 </Application>
