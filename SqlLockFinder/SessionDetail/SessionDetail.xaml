@@ -79,6 +79,18 @@
                 <Label
                     HorizontalAlignment="Left"
                     Margin="0,15,0,0"
+                    Content="Locked RIDs:" />
+                <ItemsControl
+                    ItemsSource="{Binding LockedSummaryRIDs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Label
+                    HorizontalAlignment="Left"
+                    Margin="0,15,0,0"
                     Content="Locked pages:" />
                 <ItemsControl
                     ItemsSource="{Binding LockedSummaryPages}">
