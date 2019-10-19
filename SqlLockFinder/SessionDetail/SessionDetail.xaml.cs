@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Infrastructure;
 using SqlLockFinder.SessionCanvas;
@@ -129,10 +130,20 @@ namespace SqlLockFinder.SessionDetail
         {
             if (Session == null) return;
 
-            if (MessageBox.Show(
+            if (Session.IsUserProcess 
+                    && MessageBox.Show(
                     $"Are you certain you want to kill session with spid {Session?.SPID}?", 
                     "Kill session?",
                     MessageBoxButton.YesNo) == MessageBoxResult.No)
+            {
+                return;
+            }
+            if (!Session.IsUserProcess
+                      && MessageBox.Show(
+                          $"Are you certain you want to kill session with spid {Session?.SPID}?\nKilling a system session can have unforeseen consequences!",
+                          "Kill session?",
+                          MessageBoxButton.YesNo,
+                          MessageBoxImage.Exclamation) == MessageBoxResult.No)
             {
                 return;
             }

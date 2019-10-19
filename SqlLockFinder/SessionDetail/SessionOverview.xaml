@@ -6,11 +6,16 @@
              xmlns:local="clr-namespace:SqlLockFinder.SessionDetail"
              mc:Ignorable="d"
              Width="300" 
-             Height="350" 
+             Height="480" 
              Padding="10"
              Opacity="0.7">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
@@ -114,51 +119,102 @@
             Text="{Binding WaitTime}"/>
         <Label
             Grid.Row="7"
+            Height="30"
             Grid.Column="0"
             HorizontalAlignment="Left"
-            Content="Wait type:" />
+            Content="Total session CPU (ms)" />
         <TextBlock
             Grid.Row="7"
             Grid.Column="1"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
             DataContext="{Binding Session}"
-            Text="{Binding WaitType}"/>
+            Text="{Binding TotalSessionCPUms}"/>
         <Label
             Grid.Row="8"
+            Height="30"
+            Grid.Column="0"
+            HorizontalAlignment="Left"
+            Content="Total session CPU (ms)" />
+        <TextBlock
+            Grid.Row="8"
+            Grid.Column="1"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            DataContext="{Binding Session}"
+            Text="{Binding TotalSessionCPUms}"/>
+        <Label
+            Grid.Row="9"
+            Height="30"
+            Grid.Column="0"
+            HorizontalAlignment="Left"
+            Content="Physical IO:" />
+        <TextBlock
+            Grid.Row="9"
+            Grid.Column="1"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            DataContext="{Binding Session}"
+            Text="{Binding PhysicalIO}"/>
+        <Label
+            Grid.Row="10"
+            Grid.Column="0"
+            HorizontalAlignment="Left"
+            Content="Memory usage:" />
+        <TextBlock
+            Grid.Row="10"
+            Grid.Column="1"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            DataContext="{Binding Session}"
+            Text="{Binding MemoryUsage}"/>
+        <Label
+            Grid.Row="11"
             Grid.Column="0"
             HorizontalAlignment="Left"
             Content="Wait resource:" />
         <TextBlock
-            Grid.Row="8"
+            Grid.Row="11"
             Grid.Column="1"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
             DataContext="{Binding Session}"
             Text="{Binding WaitResource}"/>
         <Label
-            Grid.Row="9"
+            Grid.Row="12"
             Grid.Column="0"
             HorizontalAlignment="Left"
             Content="Host name:" />
         <TextBlock
-            Grid.Row="9"
+            Grid.Row="12"
             Grid.Column="1"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
             DataContext="{Binding Session}"
             Text="{Binding HostName}"/>
         <Label
-            Grid.Row="10"
+            Grid.Row="13"
             Grid.Column="0"
             HorizontalAlignment="Left"
             Content="Blocked by:" />
         <TextBlock
-            Grid.Row="10"
+            Grid.Row="13"
             Grid.Column="1"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
             DataContext="{Binding Session}"
             Text="{Binding BlockedBy}"/>
+        <Label
+            Grid.Row="14"
+            Grid.Column="0"
+            HorizontalAlignment="Left"
+            Content="Is user process:" />
+        <TextBlock
+            Grid.Row="14"
+            Grid.Column="1"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            DataContext="{Binding Session}"
+            Text="{Binding IsUserProcess}"/>
     </Grid>
 </UserControl>

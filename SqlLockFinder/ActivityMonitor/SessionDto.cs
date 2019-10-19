@@ -21,6 +21,7 @@ namespace SqlLockFinder.ActivityMonitor
         public string HostName { get; set; }
         public string NetAddress { get; set; }
         public int? BlockedBy { get; set; }
+        public bool IsUserProcess { get; set; }
 
         public override string ToString()
         {

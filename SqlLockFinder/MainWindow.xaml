@@ -16,10 +16,10 @@
     <Grid>
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" >
-                <GradientStop Color="Black" Offset="0.1" />
-                <GradientStop Color="Gray" Offset="0.33" />
+                <GradientStop Color="#EEEEEE" Offset="0.1" />
+                <GradientStop Color="LightGray" Offset="0.33" />
                 <GradientStop Color="DarkGray" Offset="0.66" />
-                <GradientStop Color="Black" Offset="1.0" />
+                <GradientStop Color="#EEEEEE" Offset="1.0" />
             </LinearGradientBrush>
         </Grid.Background>
         <Grid.RowDefinitions>
@@ -86,8 +86,7 @@
             Grid.Column="0"
             Grid.ColumnSpan="2"
             Grid.Row="1"
-            Margin="0,10,400,0"
-            Background="#6FD3D3D3"
+            Margin="0,0,400,0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"/>
         <sessionDetail:SessionDetail
@@ -95,7 +94,6 @@
             Grid.Row="1" 
             x:Name="SessionDetailControl"
             Width="400"
-            Margin="0,10,0,0"
             HorizontalAlignment="Right"
             VerticalAlignment="Stretch"/>
     </Grid>

@@ -45,7 +45,8 @@ SELECT
        s.login_time AS LoginTime,
        s.last_request_start_time AS LastBatchStarted,
        s.[host_name] AS HostName,
-       r.blocking_session_id AS BlockedBy
+       r.blocking_session_id AS BlockedBy,
+       is_user_process AS IsUserProcess
 FROM sys.dm_exec_sessions s LEFT OUTER JOIN sys.dm_exec_requests r
 ON r.session_id = s.session_id").ToList();
                 queryResult.Result = result;
