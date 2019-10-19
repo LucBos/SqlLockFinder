@@ -9,6 +9,10 @@
         Title="SQL Lock finder"
         WindowState="Maximized"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Window.Resources>
+        <BitmapImage x:Key="LinkImage" UriSource="/Content/link-symbol.png" />
+        <BitmapImage x:Key="KillImage" UriSource="/Content/kill.png" />
+    </Window.Resources>
     <Grid>
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" >
@@ -19,68 +23,80 @@
             </LinearGradientBrush>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
-            <RowDefinition Height="30" />
+            <RowDefinition Height="120" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="40" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Label
+        <Ribbon
+            Grid.ColumnSpan="2"
             Grid.Column="0"
-            Grid.Row="0"
-            HorizontalAlignment="Right"
-            Content="Database:" />
-        <ComboBox
-            ItemsSource="{Binding Databases}"
-            SelectedItem="{Binding DatabaseFilter}"
-            HorizontalContentAlignment="Stretch"
-            Background="#DAD3D3D3"
-            Grid.Column="1"
-            Grid.Row="0" />
-        <Label
-            Grid.Column="0"
-            Grid.Row="1"
-            HorizontalAlignment="Right"
-            Content="Program:" />
-        <ComboBox
-            ItemsSource="{Binding ProgramNames}"
-            SelectedItem="{Binding ProgramNameFilter}"
-            HorizontalContentAlignment="Stretch"
-            Background="#DAD3D3D3"
-            Grid.Column="1"
-            Grid.Row="1" />
-
+            Grid.Row="0">
+            <Ribbon.ApplicationMenu>
+                <RibbonApplicationMenu Visibility="Collapsed"/>
+            </Ribbon.ApplicationMenu>
+            <RibbonTab
+                Header="Connection">
+                <RibbonGroup>
+                    <RibbonButton
+                        LargeImageSource="{StaticResource LinkImage}"
+                        Click="Connect"
+                        VerticalAlignment="Center"
+                        Label="Connect"></RibbonButton>
+                </RibbonGroup>
+                <RibbonGroup>
+                    <StackPanel 
+                        Orientation="Horizontal">
+                        <Label 
+                            Width="120">Database:</Label>
+                        <ComboBox
+                            ItemsSource="{Binding Databases}"
+                            SelectedItem="{Binding DatabaseFilter}"
+                            Width="400"
+                            Background="Transparent" />
+                    </StackPanel>
+                    <StackPanel 
+                        Margin="0,5,0,0"
+                        Orientation="Horizontal">
+                        <Label 
+                            Width="120">Program:</Label>
+                        <ComboBox
+                            ItemsSource="{Binding ProgramNames}"
+                            SelectedItem="{Binding ProgramNameFilter}"
+                            Width="400"
+                            Background="Transparent" />
+                    </StackPanel>
+                </RibbonGroup>
+            </RibbonTab>
+            <RibbonTab
+                Header="Session"
+                Visibility="{Binding ElementName=SessionDetailControl, Path=Session, Converter={StaticResource NullToHiddenConverter}}">
+                <RibbonGroup>
+                    <RibbonButton
+                        LargeImageSource="{StaticResource KillImage}"
+                        Label="Kill"
+                        Click="Kill"></RibbonButton>
+                </RibbonGroup>
+            </RibbonTab>
+        </Ribbon>
         <Canvas
             Name="SessionCanvas"
             Grid.Column="0"
             Grid.ColumnSpan="2"
-            Grid.Row="2"
+            Grid.Row="1"
             Margin="0,10,400,0"
             Background="#6FD3D3D3"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"/>
         <sessionDetail:SessionDetail
             Grid.Column="1"
-            Grid.Row="2" 
+            Grid.Row="1" 
             x:Name="SessionDetailControl"
             Width="400"
             Margin="0,10,0,0"
             HorizontalAlignment="Right"
             VerticalAlignment="Stretch"/>
-        <Button
-            Grid.Column="1"
-            Grid.Row="3"
-            Width="300"
-            Height="35"
-            Background="Green"
-            Foreground="White"
-            FontWeight="Bold"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Bottom"
-            Content="Connect"
-            Click="Connect" />
     </Grid>
 </Window>

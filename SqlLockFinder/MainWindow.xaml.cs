@@ -55,7 +55,6 @@ namespace SqlLockFinder
             timer.Start();
         }
 
-
         private void Connect(object sender, RoutedEventArgs e)
         {
             var connectionWindow = new ConnectWindow();
@@ -156,6 +155,11 @@ namespace SqlLockFinder
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void Kill(object sender, RoutedEventArgs e)
+        {
+            SessionDetailControl.Kill();
         }
     }
 }

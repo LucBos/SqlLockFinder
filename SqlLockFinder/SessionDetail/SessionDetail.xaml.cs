@@ -125,8 +125,10 @@ namespace SqlLockFinder.SessionDetail
             }
         }
 
-        private void KillSession(object sender, MouseButtonEventArgs e)
+        public void Kill()
         {
+            if (Session == null) return;
+
             if (MessageBox.Show(
                     $"Are you certain you want to kill session with spid {Session?.SPID}?", 
                     "Kill session?",

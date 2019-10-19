@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="Content\kill.png" />
+    <None Remove="Content\link-symbol.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,6 +17,12 @@
 
   <ItemGroup>
     <Content Include="Content\kill.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Content\link-symbol.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
