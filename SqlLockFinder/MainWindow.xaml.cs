@@ -85,6 +85,16 @@ namespace SqlLockFinder
             return string.IsNullOrEmpty(filter) || filter == DefaultFilter;
         }
 
+        private void Kill(object sender, RoutedEventArgs e)
+        {
+            SessionDetailControl.Kill();
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            sessionDrawer.Reset();
+        }
+
         public List<SessionDto> Sessions
         {
             get => sessions;
@@ -157,9 +167,5 @@ namespace SqlLockFinder
             }
         }
 
-        private void Kill(object sender, RoutedEventArgs e)
-        {
-            SessionDetailControl.Kill();
-        }
     }
 }

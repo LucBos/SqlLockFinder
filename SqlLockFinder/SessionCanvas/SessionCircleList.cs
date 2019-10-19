@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using SqlLockFinder.Infrastructure;
@@ -18,15 +19,25 @@ namespace SqlLockFinder.SessionCanvas
     {
         public Point NonCollidingPoint(int size)
         {
-            int x;
-            int y;
-            do
+            const int MaxLoop = 100000;
+            int x = 0;
+            int y = 0;
+            var maxX = MaxX - (size * 2);
+            var maxY = MaxY - (size * 2);
+            if (maxY <= (size * 2) || maxX <= (size * 2))
             {
-                x = GlobalRandom.Instance.Next((size * 2), MaxX - (size * 2));
-                y = GlobalRandom.Instance.Next((size * 2), MaxY - (size * 2));
-            } while (Collides(x, y, size));
-
-            return new Point(x, y);
+                return new Point(0,0); // canvas to small to draw
+            }
+            for (int i = 0; i < MaxLoop; i++)
+            {
+                x = GlobalRandom.Instance.Next((size * 2), maxX);
+                y = GlobalRandom.Instance.Next((size * 2), maxY);
+                if (!Collides(x, y, size))
+                {
+                    return new Point(x, y);
+                }
+            }
+            return new Point(x, y); // if the screen is too small then collisions will occur
         }
 
         public virtual bool Collides(ISessionCircle sessionCircle)

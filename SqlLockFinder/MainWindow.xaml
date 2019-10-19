@@ -8,7 +8,8 @@
         mc:Ignorable="d"
         Title="SQL Lock finder"
         WindowState="Maximized"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        SizeChanged="OnSizeChanged">
     <Window.Resources>
         <BitmapImage x:Key="LinkImage" UriSource="/Content/link-symbol.png" />
         <BitmapImage x:Key="KillImage" UriSource="/Content/kill.png" />
@@ -27,8 +28,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition MinWidth="400" />
         </Grid.ColumnDefinitions>
         <Ribbon
             Grid.ColumnSpan="2"

@@ -7,6 +7,7 @@ namespace SqlLockFinder.SessionCanvas
     public interface ISessionCircleFactory
     {
         ISessionCircle Create(SessionDto sessionDto, ISessionCircleList position);
+        void Reset(ISessionCircle sessionCircle, ISessionCircleList sessionCircles);
     }
 
     public class SessionCircleFactory : ISessionCircleFactory
@@ -36,6 +37,13 @@ namespace SqlLockFinder.SessionCanvas
             sessionCirlce.OnMouseLeave(circle => sessionTooltip.HideSummary(circle.Session));
 
             return sessionCirlce;
+        }
+
+        public void Reset(ISessionCircle sessionCircle, ISessionCircleList sessionCircles)
+        {
+            var position = sessionCircles.NonCollidingPoint(DefaultSize);
+            sessionCircle.X = position.X;
+            sessionCircle.Y = position.Y;
         }
     }
 }

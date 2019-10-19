@@ -13,6 +13,7 @@ namespace SqlLockFinder.SessionCanvas
         void Draw(List<SessionDto> sessions);
         void Move();
         void Fault();
+        void Reset();
     }
     public class SessionDrawer : ISessionDrawer
     {
@@ -37,6 +38,17 @@ namespace SqlLockFinder.SessionCanvas
         public SessionDrawer(ICanvasWrapper canvas, ISessionDetail sessionDetail) 
             : this(new SessionCircleFactory(new SessionTooltip(canvas)), new SessionCircleList(), new LineFactory(), canvas, sessionDetail)
         { }
+
+        public void Reset()
+        {
+            sessionCircles.MaxX = canvas.ActualWidth;
+            sessionCircles.MaxY = canvas.ActualHeight;
+
+            foreach (var sessionCircle in sessionCircles)
+            {
+                sessionCircleFactory.Reset(sessionCircle, sessionCircles);
+            }
+        }
 
         public void Draw(List<SessionDto> sessions)
         {
