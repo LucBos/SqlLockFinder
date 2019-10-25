@@ -78,12 +78,14 @@ namespace SqlLockFinder.SessionDetail
                 lockedResourceDtos = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(LockedSummaryRows));
+                OnPropertyChanged(nameof(LockedSummaryRIDs));
                 OnPropertyChanged(nameof(LockedSummaryPages));
             }
         }
 
         public IEnumerable<LockSummaryDto> LockedSummaryRows => lockSummary.ByKeyLock(lockedResourceDtos);
 
+        public IEnumerable<LockSummaryDto> LockedSummaryRIDs => lockSummary.ByRIDLock(lockedResourceDtos);
         public IEnumerable<LockSummaryDto> LockedSummaryPages => lockSummary.ByPageLock(lockedResourceDtos);
 
         public SessionDto Session => SessionCircle?.Session;

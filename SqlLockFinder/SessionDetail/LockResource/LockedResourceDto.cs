@@ -15,6 +15,7 @@
 
         public string FullObjectName => $"{SchemaName ?? ""}.{EntityName ?? ""}";
         public bool IsKeyLock => ResourceType == "KEY";
+        public bool IsRIDLock => ResourceType == "RID";
         public bool IsPageLock => ResourceType == "PAGE";
         public bool IsTableLock => ResourceType == "OBJECT";
         public bool IsDbLock => ResourceType == "DATABASE";

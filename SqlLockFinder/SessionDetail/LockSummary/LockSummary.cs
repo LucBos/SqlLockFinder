@@ -7,6 +7,7 @@ namespace SqlLockFinder.SessionDetail.LockSummary
     public interface ILockSummary
     {
         IEnumerable<LockSummaryDto> ByKeyLock(IEnumerable<LockedResourceDto> lockedResources);
+        IEnumerable<LockSummaryDto> ByRIDLock(IEnumerable<LockedResourceDto> lockedResources);
         IEnumerable<LockSummaryDto> ByPageLock(IEnumerable<LockedResourceDto> lockedResources);
     }
 
@@ -20,6 +21,16 @@ namespace SqlLockFinder.SessionDetail.LockSummary
             }
 
             return GetLockSummary(lockedResources.Where(x => x.IsKeyLock));
+        }
+
+        public IEnumerable<LockSummaryDto> ByRIDLock(IEnumerable<LockedResourceDto> lockedResources)
+        {
+            if (lockedResources == null)
+            {
+                return new List<LockSummaryDto>();
+            }
+
+            return GetLockSummary(lockedResources.Where(x => x.IsRIDLock));
         }
 
         public IEnumerable<LockSummaryDto> ByPageLock(IEnumerable<LockedResourceDto> lockedResources)
