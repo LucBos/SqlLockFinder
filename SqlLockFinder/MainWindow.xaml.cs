@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Threading;
 using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Connect;
@@ -24,8 +25,10 @@ namespace SqlLockFinder
         private string databaseFilter;
         private string programNameFilter;
         private string DefaultFilter;
+        private string spidToFind;
 
-        public MainWindow(IConnectionContainer connectionContainer, IActivityMonitorQuery activityMonitorQuery, ISessionDrawer sessionDrawer)
+        public MainWindow(IConnectionContainer connectionContainer, IActivityMonitorQuery activityMonitorQuery,
+            ISessionDrawer sessionDrawer)
         {
             this.connectionContainer = connectionContainer;
             this.activityMonitorQuery = activityMonitorQuery;
@@ -51,7 +54,7 @@ namespace SqlLockFinder
         {
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(100);
-            timer.Tick += (sender,e) => sessionDrawer.Move();
+            timer.Tick += (sender, e) => sessionDrawer.Move();
             timer.Start();
         }
 
@@ -95,6 +98,27 @@ namespace SqlLockFinder
             sessionDrawer.Reset();
         }
 
+        private void FindSpidOnEnter(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                FindSpid();
+            }
+        }
+
+        private void FindSpid(object sender, RoutedEventArgs e)
+        {
+            FindSpid();
+        }
+
+        private void FindSpid()
+        {
+            if (int.TryParse(SPIDToFind, out var spid))
+            {
+                sessionDrawer.Select(spid);
+            }
+        }
+
         public List<SessionDto> Sessions
         {
             get => sessions;
@@ -113,13 +137,14 @@ namespace SqlLockFinder
 
                 sessionDrawer.Draw(SessionsFiltered);
                 sessionDrawer.Move();
-                OnPropertyChanged(nameof(Sessions), nameof(Databases), nameof(ProgramNames), nameof(SessionsFiltered), nameof(ProgramNameFilter), nameof(DatabaseFilter));
+                OnPropertyChanged(nameof(Sessions), nameof(Databases), nameof(ProgramNames), nameof(SessionsFiltered),
+                    nameof(ProgramNameFilter), nameof(DatabaseFilter));
             }
         }
 
         public List<SessionDto> SessionsFiltered
         {
-            get => sessions?.Where(x => 
+            get => sessions?.Where(x =>
                 (IsDefaultFilter(DatabaseFilter) || x.DatabaseName == DatabaseFilter)
                 && (IsDefaultFilter(ProgramNameFilter) || x.ProgramName == ProgramNameFilter)
             )?.ToList();
@@ -136,6 +161,7 @@ namespace SqlLockFinder
                 OnPropertyChanged(nameof(DatabaseFilter), nameof(SessionsFiltered));
             }
         }
+
         public string ProgramNameFilter
         {
             get => programNameFilter;
@@ -145,6 +171,16 @@ namespace SqlLockFinder
                 sessionDrawer.Draw(SessionsFiltered);
                 sessionDrawer.Move();
                 OnPropertyChanged(nameof(ProgramNameFilter), nameof(SessionsFiltered));
+            }
+        }
+
+        public string SPIDToFind
+        {
+            get => spidToFind;
+            set
+            {
+                spidToFind = value;
+                OnPropertyChanged();
             }
         }
 
@@ -166,6 +202,5 @@ namespace SqlLockFinder
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-
     }
 }

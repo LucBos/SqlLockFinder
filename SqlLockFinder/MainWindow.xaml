@@ -13,6 +13,7 @@
     <Window.Resources>
         <BitmapImage x:Key="LinkImage" UriSource="/Content/link-symbol.png" />
         <BitmapImage x:Key="KillImage" UriSource="/Content/kill.png" />
+        <BitmapImage x:Key="SearchImage" UriSource="/Content/search.png" />
     </Window.Resources>
     <Grid>
         <Grid.Background>
@@ -68,6 +69,41 @@
                             SelectedItem="{Binding ProgramNameFilter}"
                             Width="400"
                             Background="Transparent" />
+                    </StackPanel>
+                </RibbonGroup>
+                <RibbonGroup>
+                    <StackPanel
+                        Orientation="Horizontal">
+                        <TextBox  
+                            Width="200"
+                            Text="{Binding SPIDToFind, UpdateSourceTrigger=PropertyChanged}"
+                            KeyDown="FindSpidOnEnter">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                    <Style.Resources>
+                                        <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                            <VisualBrush.Visual>
+                                                <Label Content="Find SPID" Foreground="LightGray" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Style.Resources>
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                            <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="Text" Value="{x:Null}">
+                                            <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter Property="Background" Value="White" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <RibbonButton 
+                            SmallImageSource="{StaticResource SearchImage}"
+                            Click="FindSpid"></RibbonButton>
                     </StackPanel>
                 </RibbonGroup>
             </RibbonTab>

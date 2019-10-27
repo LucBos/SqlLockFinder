@@ -14,6 +14,7 @@ namespace SqlLockFinder.SessionCanvas
         void Move();
         void Fault();
         void Reset();
+        void Select(int spid);
     }
     public class SessionDrawer : ISessionDrawer
     {
@@ -48,6 +49,12 @@ namespace SqlLockFinder.SessionCanvas
             {
                 sessionCircleFactory.Reset(sessionCircle, sessionCircles);
             }
+        }
+
+        public void Select(int spid)
+        {
+            var sessionCircle = sessionCircles.FirstOrDefault(x => x.Session.SPID == spid);
+            SelectSessionCircle(sessionCircle);
         }
 
         public void Draw(List<SessionDto> sessions)
@@ -115,6 +122,8 @@ namespace SqlLockFinder.SessionCanvas
 
         private void SelectSessionCircle(ISessionCircle sessionCircle)
         {
+            if (sessionCircle == null) return;
+
             sessionCircles.DeselectAll();
             sessionCircle.Selected = true;
             sessionDetail.LockedWith = sessionCircles
