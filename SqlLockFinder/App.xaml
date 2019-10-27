@@ -6,8 +6,11 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <infrastructure:BoolToVisibilityConverter
-            x:Key="BoolToHiddenConverter"
+            x:Key="VisibilityTrueToVisibleConverter"
             TrueValue="Visible" FalseValue="Hidden" />
+        <infrastructure:BoolToVisibilityConverter
+            x:Key="VisibilityTrueToHiddenConverter"
+            TrueValue="Hidden" FalseValue="Visible" />
         <infrastructure:NullToVisibilityConverter
             x:Key="NullToHiddenConverter"
             TrueValue="Hidden" FalseValue="Visible" />

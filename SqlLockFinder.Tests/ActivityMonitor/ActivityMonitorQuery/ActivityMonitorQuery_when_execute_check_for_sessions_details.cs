@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -7,11 +8,11 @@ namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
     class ActivityMonitorQuery_when_execute_check_for_sessions_details: ActivityMonitorTestBase
     {
         [Test]
-        public void It_should_return_the_resource_information_of_each_session()
+        public async Task It_should_return_the_resource_information_of_each_session()
         {
             PerformIntensiveSqlTask();
 
-            var queryResult = new SqlLockFinder.ActivityMonitor.ActivityMonitorQuery(new TestConnectionContainer())
+            var queryResult = await new SqlLockFinder.ActivityMonitor.ActivityMonitorQuery(new TestConnectionContainer())
                 .Execute();
 
             queryResult.Result.Should().Contain(x =>

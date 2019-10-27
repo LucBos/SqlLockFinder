@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Dapper;
 using SqlLockFinder.Infrastructure;
 
@@ -8,7 +9,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
 {
     public interface IGetLockResourcesBySpidQuery
     {
-        QueryResult<List<LockedResourceDto>> Execute(int[] spids, string databaseName);
+        Task<QueryResult<List<LockedResourceDto>>> Execute(int[] spids, string databaseName);
     }
 
     public class GetLockResourcesBySpidQuery : IGetLockResourcesBySpidQuery
@@ -20,7 +21,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
             this.connectionContainer = connectionContainer;
         }
 
-        public QueryResult<List<LockedResourceDto>> Execute(int[] spids, string databaseName)
+        public async Task<QueryResult<List<LockedResourceDto>>> Execute(int[] spids, string databaseName)
         {
             var queryResult = new QueryResult<List<LockedResourceDto>>();
             try
@@ -31,7 +32,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
                 var spidStrings = spids.Select(x => x.ToString()).ToArray();
 
                 var result = connection
-                    .Query<LockedResourceDto>(@"
+                    .QueryAsync<LockedResourceDto>(@"
 SELECT t.request_session_id AS SPID,
     CASE
         WHEN t.resource_type = 'OBJECT' THEN OBJECT_NAME(t.resource_associated_entity_id)
@@ -53,9 +54,8 @@ SELECT t.request_session_id AS SPID,
 FROM sys.dm_tran_locks t
 LEFT JOIN sys.partitions p ON p.partition_id = t.resource_associated_entity_id
 WHERE t.resource_database_id = DB_ID() AND t.request_session_id IN @spids
-AND (t.resource_type = 'KEY' OR t.resource_type = 'RID' OR t.resource_type = 'PAGE')", new { spids = spidStrings })
-                    .ToList();
-                queryResult.Result = result;
+AND (t.resource_type = 'KEY' OR t.resource_type = 'RID' OR t.resource_type = 'PAGE')", new {spids = spidStrings});
+                queryResult.Result = (await result).ToList();
             }
             catch (Exception e)
             {

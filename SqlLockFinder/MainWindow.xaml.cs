@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -65,22 +66,25 @@ namespace SqlLockFinder
             {
                 DispatcherTimer timer = new DispatcherTimer();
                 timer.Interval = TimeSpan.FromSeconds(2);
-                timer.Tick += (sender2, e2) => RetrieveSessions();
+                timer.Tick += async (sender2, e2) => await RetrieveSessions();
                 timer.Start();
             }
         }
 
-        private void RetrieveSessions()
+        private async Task RetrieveSessions()
         {
-            var queryResult = activityMonitorQuery.Execute();
-            if (queryResult.HasValue)
+            var queryResult = await activityMonitorQuery.Execute();
+            UI(() =>
             {
-                Sessions = queryResult.Result;
-            }
-            else
-            {
-                sessionDrawer.Fault();
-            }
+                if (queryResult.HasValue)
+                {
+                    Sessions = queryResult.Result;
+                }
+                else
+                {
+                    sessionDrawer.Fault();
+                }
+            });
         }
 
         private bool IsDefaultFilter(string filter)
@@ -201,6 +205,11 @@ namespace SqlLockFinder
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void UI(Action action)
+        {
+            Dispatcher.Invoke(action);
         }
     }
 }

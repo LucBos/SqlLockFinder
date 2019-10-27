@@ -59,6 +59,7 @@ namespace SqlLockFinder.SessionCanvas
 
         public void Draw(List<SessionDto> sessions)
         {
+            canvas.SetColor(Colors.Transparent);
             sessionCircles.MaxX = canvas.ActualWidth;
             sessionCircles.MaxY = canvas.ActualHeight;
 

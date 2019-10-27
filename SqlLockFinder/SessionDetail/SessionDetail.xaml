@@ -12,10 +12,11 @@
     <ScrollViewer
         HorizontalScrollBarVisibility="Disabled">
         <Grid
-            Visibility="{Binding ItemWasSelected, Converter={StaticResource BoolToHiddenConverter}}">
+            Visibility="{Binding ItemWasSelected, Converter={StaticResource VisibilityTrueToVisibleConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="160" />
                 <RowDefinition Height="490" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -41,7 +42,13 @@
                 Padding="0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Stretch" />
+            <TextBlock
+                Grid.Row="3"
+                Grid.ColumnSpan="2"
+                Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
+                Text="Loading locked resources..."></TextBlock>
             <StackPanel
+                Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
                 Orientation="Vertical"
                 HorizontalAlignment="Stretch"
                 Grid.Row="3"
@@ -85,6 +92,7 @@
                 </ItemsControl>
             </StackPanel>
             <StackPanel
+                Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
                 Name="BlockedResourcesBySpidStackPanel"
                 HorizontalAlignment="Stretch"
                 Grid.Row="4"

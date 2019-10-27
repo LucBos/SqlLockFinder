@@ -74,6 +74,7 @@ namespace SqlLockFinder.SessionCanvas
             canvas.Background = new SolidColorBrush(color);
         }
 
+
         public int ActualWidth => (int)canvas.ActualWidth;
         public int ActualHeight => (int) canvas.ActualHeight;
        

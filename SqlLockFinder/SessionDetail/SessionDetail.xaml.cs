@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -30,6 +31,7 @@ namespace SqlLockFinder.SessionDetail
         private readonly ILockSummary lockSummary;
         private ISessionCircle sessionCircle;
         private List<LockedResourceDto> lockedResourceDtos;
+        private bool loadingLockResources;
 
         public SessionDetail() : this(
             new GetLockResourcesBySpidQuery(ConnectionContainer.Instance),
@@ -83,6 +85,16 @@ namespace SqlLockFinder.SessionDetail
             }
         }
 
+        public bool LoadingLockResources
+        {
+            get => loadingLockResources;
+            set
+            {
+                loadingLockResources = value;
+                OnPropertyChanged();
+            }
+        }
+
         public IEnumerable<LockSummaryDto> LockedSummaryRows => lockSummary.ByKeyLock(lockedResourceDtos);
 
         public IEnumerable<LockSummaryDto> LockedSummaryRIDs => lockSummary.ByRIDLock(lockedResourceDtos);
@@ -94,23 +106,30 @@ namespace SqlLockFinder.SessionDetail
 
         public bool ItemWasSelected => SessionCircle != null;
 
-        private void RetrieveLocks()
+        private async void RetrieveLocks()
         {
             if (Session == null) return;
+
+            UI(() => LoadingLockResources = true);
 
             var spids = LockedWith
                 .Select(x => x.SPID)
                 .Union(new[] {Session.SPID})
                 .ToArray();
-            var queryResult = getLockResourcesBySpidQuery.Execute(spids, Session.DatabaseName);
-            if (queryResult.HasValue)
+            var queryResult = await getLockResourcesBySpidQuery.Execute(spids, Session.DatabaseName);
+
+            UI(() =>
             {
-                CreateLockResourcesBySPID(queryResult.Result);
-            }
-            else if (queryResult.Faulted)
-            {
-                notifyUser.Notify(queryResult);
-            }
+                LoadingLockResources = false;
+                if (queryResult.HasValue)
+                {
+                    CreateLockResourcesBySPID(queryResult.Result);
+                }
+                else if (queryResult.Faulted)
+                {
+                    notifyUser.Notify(queryResult);
+                }
+            });
         }
 
         private void CreateLockResourcesBySPID(List<LockedResourceDto> lockedResources)
@@ -128,7 +147,7 @@ namespace SqlLockFinder.SessionDetail
             }
         }
 
-        public void Kill()
+        public async void Kill()
         {
             if (Session == null) return;
 
@@ -150,15 +169,18 @@ namespace SqlLockFinder.SessionDetail
                 return;
             }
 
-            var queryResult = killSessionQuery.Execute(Session.SPID);
-            if (queryResult.Faulted)
+            var queryResult = await killSessionQuery.Execute(Session.SPID);
+            UI(() =>
             {
-                notifyUser.Notify(queryResult);
-            }
-            else
-            {
-                SessionCircle = null;
-            }
+                if (queryResult.Faulted)
+                {
+                    notifyUser.Notify(queryResult);
+                }
+                else
+                {
+                    SessionCircle = null;
+                }
+            });
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -168,5 +190,10 @@ namespace SqlLockFinder.SessionDetail
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        private void UI(Action action)
+        {
+            Dispatcher.Invoke(action);
+        }
+
     }
 }

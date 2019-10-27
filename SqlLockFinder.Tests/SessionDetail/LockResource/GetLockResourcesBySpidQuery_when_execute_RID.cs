@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using NUnit.Framework;
@@ -10,7 +11,7 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
     class GetLockResourcesBySpidQuery_when_execute_RID : DoubleConnection_TestBase
     {
         [Test]
-        public void It_should_be_able_to_return_RID_locks()
+        public async Task It_should_be_able_to_return_RID_locks()
         {
             var spid1 = connection1.Query<int>("SELECT @@SPID", transaction: transaction1).First();
             var spid2 = connection2.Query<int>("SELECT @@SPID", transaction: transaction2).First();
@@ -39,7 +40,7 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
 
             Thread.Sleep(600);
 
-            var queryResult = new GetLockResourcesBySpidQuery(new TestConnectionContainer())
+            var queryResult = await new GetLockResourcesBySpidQuery(new TestConnectionContainer())
                 .Execute(new[] { spid1, spid2 }, "Northwind");
 
             queryResult.Result.Should().Contain(x =>

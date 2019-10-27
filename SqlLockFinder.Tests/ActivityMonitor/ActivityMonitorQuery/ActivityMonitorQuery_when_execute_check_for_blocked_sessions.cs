@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using NUnit.Framework;
@@ -9,7 +10,7 @@ namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
     public class ActivityMonitorQuery_when_execute_check_for_blocked_sessions: ActivityMonitorTestBase
     {
         [Test]
-        public void It_should_return_all_blocked_sessions_from_all_databases()
+        public async Task It_should_return_all_blocked_sessions_from_all_databases()
         {
             var spid1 = connection1.Query<int>("SELECT @@SPID", transaction:transaction1).First();
             var spid2 = connection2.Query<int>("SELECT @@SPID", transaction: transaction2).First();
@@ -26,7 +27,7 @@ namespace SqlLockFinder.Tests.ActivityMonitor.ActivityMonitorQuery
 
             Thread.Sleep(1100); // emulate wait time
 
-            var queryResult = new SqlLockFinder.ActivityMonitor.ActivityMonitorQuery(new TestConnectionContainer()).Execute();
+            var queryResult = await new SqlLockFinder.ActivityMonitor.ActivityMonitorQuery(new TestConnectionContainer()).Execute();
             queryResult.Result.Should().Contain(x => 
                 x.DatabaseName == "Northwind" 
                 && x.SPID == spid1 

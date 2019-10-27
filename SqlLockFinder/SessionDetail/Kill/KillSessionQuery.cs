@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Dapper;
 using SqlLockFinder.Infrastructure;
 
@@ -6,7 +7,7 @@ namespace SqlLockFinder.SessionDetail.Kill
 {
     public interface IKillSessionQuery
     {
-        QueryResult Execute(int spid);
+        Task<QueryResult> Execute(int spid);
     }
 
     public class KillSessionQuery : IKillSessionQuery
@@ -18,7 +19,7 @@ namespace SqlLockFinder.SessionDetail.Kill
             this.connectionContainer = connectionContainer;
         }
 
-        public QueryResult Execute(int spid)
+        public async Task<QueryResult> Execute(int spid)
         {
             var queryResult = new QueryResult();
            
@@ -26,7 +27,7 @@ namespace SqlLockFinder.SessionDetail.Kill
             {
                 var connection = connectionContainer.GetConnection();
                 connection.ChangeDatabase("master");
-                connection.Execute($"KILL {spid}");
+                await connection.ExecuteAsync($"KILL {spid}");
             }
             catch (Exception ex)
             {

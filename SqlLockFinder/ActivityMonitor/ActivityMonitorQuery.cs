@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Dapper;
 using SqlLockFinder.Infrastructure;
 
@@ -8,7 +9,7 @@ namespace SqlLockFinder.ActivityMonitor
 {
     public interface IActivityMonitorQuery
     {
-        QueryResult<List<SessionDto>> Execute();
+        Task<QueryResult<List<SessionDto>>> Execute();
     }
 
     public class ActivityMonitorQuery : IActivityMonitorQuery
@@ -20,14 +21,14 @@ namespace SqlLockFinder.ActivityMonitor
             this.connectionContainer = connectionContainer;
         }
 
-        public QueryResult<List<SessionDto>> Execute()
+        public async Task<QueryResult<List<SessionDto>>> Execute()
         {
             var queryResult = new QueryResult<List<SessionDto>>();
             try
             {
                 var connection = connectionContainer.GetConnection();
                 connection.ChangeDatabase("master");
-                var result = connection.Query<SessionDto>(@"
+                var result = connection.QueryAsync<SessionDto>(@"
 SELECT
        s.session_id AS SPID,
        s.login_name AS LoginName,
@@ -48,8 +49,8 @@ SELECT
        r.blocking_session_id AS BlockedBy,
        is_user_process AS IsUserProcess
 FROM sys.dm_exec_sessions s LEFT OUTER JOIN sys.dm_exec_requests r
-ON r.session_id = s.session_id").ToList();
-                queryResult.Result = result;
+ON r.session_id = s.session_id");
+                queryResult.Result = (await result).ToList();
             }
             catch (Exception ex)
             {
