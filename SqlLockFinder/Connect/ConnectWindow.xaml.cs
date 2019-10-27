@@ -138,7 +138,7 @@ namespace SqlLockFinder.Connect
                         var security = SelectedAuthentication == WindowsAuthentication
                             ? "Integrated Security=SSPI"
                             : $"User=\"{Username}\";Password=\"{PasswordBox.Password}\"";
-                        connectionContainer.Create($"Data Source={DataSource};{security};Application Name=SqlLockFinder;Connection Timeout=15;");
+                        connectionContainer.Create($"Data Source={DataSource};{security};Application Name=SqlLockFinder;Connection Timeout=15;MultipleActiveResultSets=true;");
                         break;
                     case ConnectBy.Connectionstring:
                         connectionContainer.Create(Connectionstring);

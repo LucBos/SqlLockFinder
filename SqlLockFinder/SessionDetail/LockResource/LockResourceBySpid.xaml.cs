@@ -1,4 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using SqlLockFinder.ActivityMonitor;
@@ -16,10 +21,11 @@ namespace SqlLockFinder.SessionDetail.LockResource
     /// <summary>
     /// Interaction logic for LockResourceBySpid.xaml
     /// </summary>
-    public partial class LockResourceBySpid : UserControl, ILockResourceBySpid
+    public partial class LockResourceBySpid : UserControl, ILockResourceBySpid, INotifyPropertyChanged
     {
         private readonly IGetRowOfLockedResourceQuery getRowOfLockedResourceQuery;
         private readonly INotifyUser notifyUser;
+        private bool allowQuery;
 
         public LockResourceBySpid(
             int lockingSpid,
@@ -34,6 +40,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
             LockedResourceDtos = lockedResourceDtos;
             Session = session;
             DataContext = this;
+            AllowQuery = true;
 
             InitializeComponent();
         }
@@ -42,12 +49,33 @@ namespace SqlLockFinder.SessionDetail.LockResource
         public int LockingSPID { get; set; }
         public List<LockedResourceDto> LockedResourceDtos { get; set; }
 
-        private void ShowLockedRow(object sender, RoutedEventArgs e)
+        public bool AllowQuery
         {
-            if (LockedResourceGrid.SelectedItem is LockedResourceDto selectedItem)
+            get => allowQuery;
+            set
             {
-                var queryResult = getRowOfLockedResourceQuery.Execute(Session.DatabaseName, selectedItem.FullObjectName, selectedItem.Description);
+                allowQuery = value;
+                OnPropertyChanged();
+            }
+        }
 
+        private async void ShowLockedRow(object sender, RoutedEventArgs e)
+        {
+            if (!(LockedResourceGrid.SelectedItem is LockedResourceDto selectedItem && AllowQuery)) return;
+
+            ShowLockedRow(selectedItem);
+        }
+
+        private async Task ShowLockedRow(LockedResourceDto selectedItem)
+        {
+            UI(() => AllowQuery = false);
+
+            var queryResult = await getRowOfLockedResourceQuery.Execute(Session.DatabaseName, selectedItem.FullObjectName,
+                selectedItem.Description);
+
+            UI(() =>
+            {
+                AllowQuery = true;
                 if (queryResult.HasValue)
                 {
                     var window = new Window();
@@ -58,7 +86,20 @@ namespace SqlLockFinder.SessionDetail.LockResource
                 {
                     notifyUser.Notify(queryResult);
                 }
-            }
+            });
+        }
+
+        private void UI(Action action)
+        {
+            Dispatcher.Invoke(action);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [Annotations.NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

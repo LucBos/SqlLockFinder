@@ -1,5 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 using Dapper;
 using SqlLockFinder.Infrastructure;
 
@@ -7,7 +8,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
 {
     public interface IGetRowOfLockedResourceQuery
     {
-        QueryResult<dynamic> Execute(string databaseName, string fullObjectName, string lockres);
+        Task<QueryResult<dynamic>> Execute(string databaseName, string fullObjectName, string lockres);
     }
 
     public class GetRowOfLockedResourceQuery : IGetRowOfLockedResourceQuery
@@ -19,7 +20,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
             this.connectionContainer = connectionContainer;
         }
 
-        public QueryResult<dynamic> Execute(string databaseName, string fullObjectName, string lockres)
+        public async Task<QueryResult<dynamic>> Execute(string databaseName, string fullObjectName, string lockres)
         {
             var connection = connectionContainer.GetConnection();
             connection.ChangeDatabase(databaseName);
@@ -32,9 +33,9 @@ namespace SqlLockFinder.SessionDetail.LockResource
             {
                 try
                 {
-                    var rows = connection.Query<dynamic>($@"
+                    var rows = await connection.QueryAsync<dynamic>($@"
 SELECT *
-FROM {fullObjectName} v2 WITH(INDEX={index.index_name})
+FROM {fullObjectName} v2 WITH(INDEX={index.index_name}, NOLOCK)
 WHERE %%lockres%% = @description", new {description = lockres});
 
                     if (rows.Any())

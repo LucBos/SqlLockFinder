@@ -7,17 +7,17 @@
     <Application.Resources>
         <infrastructure:BoolToVisibilityConverter
             x:Key="VisibilityTrueToVisibleConverter"
-            TrueValue="Visible" FalseValue="Hidden" />
+            TrueValue="Visible" FalseValue="Collapsed" />
         <infrastructure:BoolToVisibilityConverter
             x:Key="VisibilityTrueToHiddenConverter"
-            TrueValue="Hidden" FalseValue="Visible" />
+            TrueValue="Collapsed" FalseValue="Visible" />
         <infrastructure:NullToVisibilityConverter
             x:Key="NullToHiddenConverter"
-            TrueValue="Hidden" FalseValue="Visible" />
+            TrueValue="Collapsed" FalseValue="Visible" />
         <infrastructure:EnumBooleanConverter
             x:Key="EnumBooleanConverter" />
         <infrastructure:EnumToVisibilityConverter
             x:Key="EnumToVisibilityConverter"
-            TrueValue="Visible" FalseValue="Hidden" />
+            TrueValue="Visible" FalseValue="Collapsed" />
     </Application.Resources>
 </Application>

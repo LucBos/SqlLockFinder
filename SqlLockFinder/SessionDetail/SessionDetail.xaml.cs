@@ -82,6 +82,9 @@ namespace SqlLockFinder.SessionDetail
                 OnPropertyChanged(nameof(LockedSummaryRows));
                 OnPropertyChanged(nameof(LockedSummaryRIDs));
                 OnPropertyChanged(nameof(LockedSummaryPages));
+                OnPropertyChanged(nameof(HasLockedSummaryRows));
+                OnPropertyChanged(nameof(HasLockedSummaryRIDs));
+                OnPropertyChanged(nameof(HasLockedSummaryPages));
             }
         }
 
@@ -98,7 +101,14 @@ namespace SqlLockFinder.SessionDetail
         public IEnumerable<LockSummaryDto> LockedSummaryRows => lockSummary.ByKeyLock(lockedResourceDtos);
 
         public IEnumerable<LockSummaryDto> LockedSummaryRIDs => lockSummary.ByRIDLock(lockedResourceDtos);
+
         public IEnumerable<LockSummaryDto> LockedSummaryPages => lockSummary.ByPageLock(lockedResourceDtos);
+
+        public bool HasLockedSummaryRows => LockedSummaryRows.Any();
+
+        public bool HasLockedSummaryRIDs => LockedSummaryRIDs.Any();
+
+        public bool HasLockedSummaryPages => LockedSummaryPages.Any();
 
         public SessionDto Session => SessionCircle?.Session;
 

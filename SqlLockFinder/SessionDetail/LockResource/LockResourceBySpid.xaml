@@ -24,6 +24,7 @@
             VerticalAlignment="Top"
             HorizontalAlignment="Stretch"
             IsReadOnly="True"
+            IsEnabled="{Binding AllowQuery}"
             SelectionMode="Single">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="FullObjectName" Width="auto">

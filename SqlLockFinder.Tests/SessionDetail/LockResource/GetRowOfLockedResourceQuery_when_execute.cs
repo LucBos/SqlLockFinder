@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 
@@ -16,7 +17,7 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
         }
 
         [Test]
-        public void It_should_return_the_exact_row_by_clustered_index()
+        public async Task It_should_return_the_exact_row_by_clustered_index()
         {
             connection1.Execute("USE Northwind", transaction: transaction1);
             var lockres = connection1.Query<string>(@"
@@ -38,7 +39,7 @@ SELECT CustomerID
 FROM dbo.Customers
 WHERE CustomerID = 'GODOS'", transaction: transaction1).First();
 
-            var result = getRowOfLockedResourceQuery.Execute("Northwind", "dbo.Customers", lockres);
+            var result = await getRowOfLockedResourceQuery.Execute("Northwind", "dbo.Customers", lockres);
 
             Assert.AreEqual(result.Result.CustomerID, record.CustomerID);
             Assert.AreEqual(result.Result.CompanyName, record.CompanyName);
@@ -54,7 +55,7 @@ WHERE CustomerID = 'GODOS'", transaction: transaction1).First();
         }
 
         [Test]
-        public void It_should_return_the_exact_row_by_nonclustered_index()
+        public async Task It_should_return_the_exact_row_by_nonclustered_index()
         {
             connection1.Execute("USE Northwind", transaction: transaction1);
             var lockres = connection1.Query<string>(@"
@@ -76,7 +77,7 @@ SELECT CustomerID
 FROM dbo.Customers
 WHERE CustomerID = 'GODOS'", transaction: transaction1).First();
 
-            var result = getRowOfLockedResourceQuery.Execute("Northwind", "dbo.Customers", lockres);
+            var result = await getRowOfLockedResourceQuery.Execute("Northwind", "dbo.Customers", lockres);
 
             Assert.AreEqual(result.Result.CustomerID, record.CustomerID);
             Assert.AreEqual(result.Result.CompanyName, record.CompanyName);

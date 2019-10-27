@@ -114,7 +114,7 @@ namespace SqlLockFinder.Connect
             {
                 Provider = match.Groups[1].ToString();
 
-                ConnectionString = match.Groups[2].ToString();
+                ConnectionString = match.Groups[2].ToString() + ";MultipleActiveResultSets=true";
                 ConnectionString = ConnectionString.Replace(";Server SPN=\"\"", "");
                     
                 Success = true;

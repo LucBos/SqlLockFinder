@@ -55,6 +55,7 @@
                 Grid.ColumnSpan="2"
                 MaxHeight="500">
                 <Label
+                    Visibility="{Binding HasLockedSummaryRows, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
                     HorizontalAlignment="Left"
                     Margin="0,15,0,0"
                     Content="Locked rows:" />
@@ -67,6 +68,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
                 <Label
+                    Visibility="{Binding HasLockedSummaryRIDs, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
                     HorizontalAlignment="Left"
                     Margin="0,15,0,0"
                     Content="Locked RIDs:" />
@@ -79,6 +81,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
                 <Label
+                    Visibility="{Binding HasLockedSummaryPages, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
                     HorizontalAlignment="Left"
                     Margin="0,15,0,0"
                     Content="Locked pages:" />
