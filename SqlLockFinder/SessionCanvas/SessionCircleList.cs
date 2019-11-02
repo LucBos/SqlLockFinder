@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Infrastructure;
 
 namespace SqlLockFinder.SessionCanvas
@@ -13,6 +13,8 @@ namespace SqlLockFinder.SessionCanvas
         int MaxX { get; set; }
         int MaxY { get; set; }
         void DeselectAll();
+        IEnumerable<SessionDto> GetLockedWith(ISessionCircle sessionCircle);
+        ISessionCircle GetLockCause(ISessionCircle sessionCircle);
     }
 
     public class SessionCircleList : List<ISessionCircle>, ISessionCircleList
@@ -26,8 +28,9 @@ namespace SqlLockFinder.SessionCanvas
             var maxY = MaxY - (size * 2);
             if (maxY <= (size * 2) || maxX <= (size * 2))
             {
-                return new Point(0,0); // canvas to small to draw
+                return new Point(0, 0); // canvas to small to draw
             }
+
             for (int i = 0; i < MaxLoop; i++)
             {
                 x = GlobalRandom.Instance.Next((size * 2), maxX);
@@ -37,15 +40,16 @@ namespace SqlLockFinder.SessionCanvas
                     return new Point(x, y);
                 }
             }
+
             return new Point(x, y); // if the screen is too small then collisions will occur
         }
 
         public virtual bool Collides(ISessionCircle sessionCircle)
         {
-            return CollidesBoundry(sessionCircle.X, sessionCircle.Y, sessionCircle.Size) 
+            return CollidesBoundry(sessionCircle.X, sessionCircle.Y, sessionCircle.Size)
                    || this.Any(circle => circle != sessionCircle
-                                      && CollidesX(sessionCircle.X, sessionCircle.Size, circle)
-                                      && CollidesY(sessionCircle.Y, sessionCircle.Size, circle));
+                                         && CollidesX(sessionCircle.X, sessionCircle.Size, circle)
+                                         && CollidesY(sessionCircle.Y, sessionCircle.Size, circle));
         }
 
         private bool CollidesBoundry(int x, int y, int size)
@@ -80,6 +84,27 @@ namespace SqlLockFinder.SessionCanvas
             {
                 sessionCircle.Selected = false;
             }
+        }
+
+        public IEnumerable<SessionDto> GetLockedWith(ISessionCircle sessionCircle)
+        {
+            return this
+                .Where(x => x.Session.BlockedBy == sessionCircle.Session.SPID ||
+                            x.Session.SPID == sessionCircle.Session.BlockedBy)
+                .Select(x => x.Session);
+        }
+
+        public ISessionCircle GetLockCause(ISessionCircle sessionCircle)
+        {
+            ISessionCircle blocked = sessionCircle;
+            do
+            {
+                blocked = blocked.Session.BlockedBy.HasValue
+                    ? this.FirstOrDefault(x => x.Session.SPID == blocked.Session.BlockedBy)
+                    : null;
+            } while (blocked != null && blocked.Session.BlockedBy.HasValue);
+
+            return blocked;
         }
     }
 }

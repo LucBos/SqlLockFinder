@@ -65,6 +65,7 @@ namespace SqlLockFinder.SessionCanvas
 
             CreateOrUpdate(sessions);
             DestroyOld(sessions);
+            sessionDetail.SessionCircles = sessionCircles;
         }
 
         public void Move()
@@ -127,9 +128,8 @@ namespace SqlLockFinder.SessionCanvas
 
             sessionCircles.DeselectAll();
             sessionCircle.Selected = true;
-            sessionDetail.LockedWith = sessionCircles
-                .Where(x => x.Session.BlockedBy == sessionCircle.Session.SPID || x.Session.SPID == sessionCircle.Session.BlockedBy)
-                .Select(x => x.Session);
+                
+            sessionDetail.SessionCircles = sessionCircles;
             sessionDetail.SessionCircle = sessionCircle;
         }
 

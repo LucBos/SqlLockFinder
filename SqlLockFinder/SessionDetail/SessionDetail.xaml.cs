@@ -5,8 +5,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media.Animation;
 using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Infrastructure;
 using SqlLockFinder.SessionCanvas;
@@ -19,7 +17,8 @@ namespace SqlLockFinder.SessionDetail
     public interface ISessionDetail
     {
         ISessionCircle SessionCircle { get; set; }
-        IEnumerable<SessionDto> LockedWith { get; set; }
+        ISessionCircleList SessionCircles { get; set; }
+
     }
 
     public partial class SessionDetail : UserControl, ISessionDetail, INotifyPropertyChanged
@@ -32,6 +31,8 @@ namespace SqlLockFinder.SessionDetail
         private ISessionCircle sessionCircle;
         private List<LockedResourceDto> lockedResourceDtos;
         private bool loadingLockResources;
+        private ISessionCircleList sessionCircles;
+        private ISessionCircle lockCause;
 
         public SessionDetail() : this(
             new GetLockResourcesBySpidQuery(ConnectionContainer.Instance),
@@ -68,9 +69,27 @@ namespace SqlLockFinder.SessionDetail
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ItemWasSelected));
                 OnPropertyChanged(nameof(Session));
+                OnPropertyChanged(nameof(LockCause));
+                OnPropertyChanged(nameof(LockedWith));
                 RetrieveLocks();
             }
         }
+
+
+        public ISessionCircleList SessionCircles
+        {
+            get => sessionCircles;
+            set
+            {
+                sessionCircles = value;
+                if (sessionCircle != null)
+                {
+                    OnPropertyChanged(nameof(LockCause));
+                    OnPropertyChanged(nameof(LockedWith));
+                }
+            }
+        }
+
 
         public List<LockedResourceDto> LockedResourceDtos
         {
@@ -112,13 +131,15 @@ namespace SqlLockFinder.SessionDetail
 
         public SessionDto Session => SessionCircle?.Session;
 
-        public IEnumerable<SessionDto> LockedWith { get; set; }
+        public IEnumerable<SessionDto> LockedWith => sessionCircles?.GetLockedWith(sessionCircle);
+
+        public ISessionCircle LockCause => sessionCircles?.GetLockCause(sessionCircle);
 
         public bool ItemWasSelected => SessionCircle != null;
 
         private async void RetrieveLocks()
         {
-            if (Session == null) return;
+            if (Session == null|| LockedWith == null) return;
 
             UI(() => LoadingLockResources = true);
 
