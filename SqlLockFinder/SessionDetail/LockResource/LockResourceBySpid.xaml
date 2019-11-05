@@ -27,7 +27,7 @@
             IsEnabled="{Binding AllowQuery}"
             SelectionMode="Single">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="FullObjectName" Width="auto">
+                <DataGridTemplateColumn Header="FullObjectName" Width="25">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button Click="ShowLockedRow">+</Button>

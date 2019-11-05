@@ -60,6 +60,16 @@ namespace SqlLockFinder.Tests.SessionCanvas.SessionCircleList
             {
                 throw new NotImplementedException();
             }
+
+            public void Enable()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Disable()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,6 +17,8 @@ namespace SqlLockFinder.SessionCanvas
         int ActualHeight { get; }
         void TrackMouse(SessionDetail.SessionOverview sessionOverview);
         void SetColor(Color color);
+        void OnMouseMove(Action<int, int> handler);
+        void OnMouseUp(Action handler);
     }
 
     public class CanvasWrapper : ICanvasWrapper
@@ -72,6 +75,16 @@ namespace SqlLockFinder.SessionCanvas
         public void SetColor(Color color)
         {
             canvas.Background = new SolidColorBrush(color);
+        }
+
+        public void OnMouseMove(Action<int, int> handler)
+        {
+            canvas.MouseMove += (o, e) => handler((int)e.GetPosition(canvas).X, (int)e.GetPosition(canvas).Y);
+        }
+
+        public void OnMouseUp(Action handler)
+        {
+            canvas.MouseUp += (o, e) => handler();
         }
 
 

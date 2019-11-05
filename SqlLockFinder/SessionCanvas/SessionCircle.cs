@@ -23,6 +23,8 @@ namespace SqlLockFinder.SessionCanvas
         void OnMouseDown(Action<ISessionCircle> action);
         void Move();
         void Revert();
+        void Enable();
+        void Disable();
     }
 
     public class SessionCircle : ISessionCircle
@@ -38,6 +40,7 @@ namespace SqlLockFinder.SessionCanvas
         private event Action<SessionCircle> MouseOver;
         private event Action<SessionCircle> MouseLeave;
         private event Action<SessionCircle> MouseDown;
+        private event Action<SessionCircle> MouseUp;
 
         public SessionCircle()
         {
@@ -52,6 +55,7 @@ namespace SqlLockFinder.SessionCanvas
             canvas.MouseEnter += (sender, e) => MouseOver?.Invoke(this);
             canvas.MouseLeave += (sender, e) => MouseLeave?.Invoke(this);
             canvas.MouseDown += (sender, e) => MouseDown?.Invoke(this);
+            canvas.MouseUp += (sender, e) => MouseUp?.Invoke(this);
         }
 
         public SessionDto Session
@@ -177,6 +181,16 @@ namespace SqlLockFinder.SessionCanvas
         {
             SpeedX = SpeedX == 0 ? GlobalRandom.Instance.Next(-1, 2) : -SpeedX;
             SpeedY = SpeedY == 0 ? GlobalRandom.Instance.Next(-1, 2) : -SpeedY;
+        }
+
+        public void Enable()
+        {
+            this.canvas.IsHitTestVisible = true;
+        }
+
+        public void Disable()
+        {
+            this.canvas.IsHitTestVisible = false;
         }
     }
 }

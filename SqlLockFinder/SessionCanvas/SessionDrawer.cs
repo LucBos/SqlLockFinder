@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using SqlLockFinder.ActivityMonitor;
@@ -25,6 +26,7 @@ namespace SqlLockFinder.SessionCanvas
         private readonly ISessionDetail sessionDetail;
         private ISessionCircleList sessionCircles;
         private readonly ILineFactory lineFactory;
+        private ISessionCircle toTrack;
 
         public SessionDrawer(ISessionCircleFactory sessionCircleFactory, ISessionCircleList sessionCircles, ILineFactory lineFactory,
             ICanvasWrapper canvas, ISessionDetail sessionDetail)
@@ -34,6 +36,9 @@ namespace SqlLockFinder.SessionCanvas
             this.lineFactory = lineFactory;
             this.canvas = canvas;
             this.sessionDetail = sessionDetail;
+
+            this.canvas.OnMouseMove(MouseMove);
+            this.canvas.OnMouseUp(EndMove);
         }
 
         public SessionDrawer(ICanvasWrapper canvas, ISessionDetail sessionDetail) 
@@ -114,12 +119,34 @@ namespace SqlLockFinder.SessionCanvas
                 {
                     sessionCircle = sessionCircleFactory.Create(sessionDto, sessionCircles);
                     sessionCircle.OnMouseDown(SelectSessionCircle);
+                    sessionCircle.OnMouseDown(BeginMove);
                     sessionCircles.Add(sessionCircle);
                     canvas.Add(sessionCircle.UiElement, sessionDto.BlockedBy.HasValue ? 3 : 1);
                 }
 
                 sessionCircle.Session = sessionDto;
             }
+        }
+
+        private void EndMove()
+        {
+            this.toTrack?.Enable();
+            this.toTrack = null;
+        }
+
+        private void BeginMove(ISessionCircle toTrack)
+        {
+            this.toTrack?.Enable();
+            this.toTrack = toTrack;
+            this.toTrack.Disable();
+        }
+
+        private void MouseMove(int x, int y)
+        {
+            if(this.toTrack == null) return;
+
+            this.toTrack.X = x;
+            this.toTrack.Y = y;
         }
 
         private void SelectSessionCircle(ISessionCircle sessionCircle)
