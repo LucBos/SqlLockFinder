@@ -19,5 +19,16 @@
         <infrastructure:EnumToVisibilityConverter
             x:Key="EnumToVisibilityConverter"
             TrueValue="Visible" FalseValue="Collapsed" />
+        <Style x:Key="ClickableStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.1" ScaleY="1.1"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

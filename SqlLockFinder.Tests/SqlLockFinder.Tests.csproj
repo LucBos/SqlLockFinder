@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Reference Include="System.Configuration.ConfigurationManager">
-      <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\3.0.0-preview7-27912-14\ref\netcoreapp3.0\System.Configuration.ConfigurationManager.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -18,7 +18,6 @@ namespace SqlLockFinder.SessionDetail
     {
         ISessionCircle SessionCircle { get; set; }
         ISessionCircleList SessionCircles { get; set; }
-
     }
 
     public partial class SessionDetail : UserControl, ISessionDetail, INotifyPropertyChanged
@@ -101,9 +100,12 @@ namespace SqlLockFinder.SessionDetail
                 OnPropertyChanged(nameof(LockedSummaryRows));
                 OnPropertyChanged(nameof(LockedSummaryRIDs));
                 OnPropertyChanged(nameof(LockedSummaryPages));
+                OnPropertyChanged(nameof(LockedSummaryApplications));
                 OnPropertyChanged(nameof(HasLockedSummaryRows));
                 OnPropertyChanged(nameof(HasLockedSummaryRIDs));
                 OnPropertyChanged(nameof(HasLockedSummaryPages));
+                OnPropertyChanged(nameof(HasLockedSummaryApplications));
+                OnPropertyChanged(nameof(TooManyResourcesLocked));
             }
         }
 
@@ -114,6 +116,7 @@ namespace SqlLockFinder.SessionDetail
             {
                 loadingLockResources = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(TooManyResourcesLocked));
             }
         }
 
@@ -122,12 +125,15 @@ namespace SqlLockFinder.SessionDetail
         public IEnumerable<LockSummaryDto> LockedSummaryRIDs => lockSummary.ByRIDLock(lockedResourceDtos);
 
         public IEnumerable<LockSummaryDto> LockedSummaryPages => lockSummary.ByPageLock(lockedResourceDtos);
+        public IEnumerable<LockSummaryDto> LockedSummaryApplications => lockSummary.ByApplications(lockedResourceDtos);
 
         public bool HasLockedSummaryRows => LockedSummaryRows.Any();
 
         public bool HasLockedSummaryRIDs => LockedSummaryRIDs.Any();
 
         public bool HasLockedSummaryPages => LockedSummaryPages.Any();
+        public bool HasLockedSummaryApplications => LockedSummaryApplications.Any();
+        public bool TooManyResourcesLocked => !LoadingLockResources && lockedResourceDtos.Count > 5000;
 
         public SessionDto Session => SessionCircle?.Session;
 
@@ -139,7 +145,7 @@ namespace SqlLockFinder.SessionDetail
 
         private async void RetrieveLocks()
         {
-            if (Session == null|| LockedWith == null) return;
+            if (Session == null || LockedWith == null || LoadingLockResources) return;
 
             UI(() => LoadingLockResources = true);
 
@@ -149,12 +155,25 @@ namespace SqlLockFinder.SessionDetail
                 .ToArray();
             var queryResult = await getLockResourcesBySpidQuery.Execute(spids, Session.DatabaseName);
 
+            Dictionary<int, List<LockedResourceDto>> lockedPerSpid = null;
+            if (queryResult.HasValue)
+            {
+                lockedPerSpid = CreateLockResourcesBySPID(queryResult.Result);
+            }
+
             UI(() =>
             {
                 LoadingLockResources = false;
-                if (queryResult.HasValue)
+                if (queryResult.HasValue && lockedPerSpid != null)
                 {
-                    CreateLockResourcesBySPID(queryResult.Result);
+                    BlockedResourcesBySpidStackPanel.Children.Clear();
+
+                    foreach (var spidLocks in lockedPerSpid)
+                    {
+                        var lockedResourceBySpid =
+                            lockResourceBySpidFactory.Create(spidLocks.Key, spidLocks.Value, Session);
+                        BlockedResourcesBySpidStackPanel.Children.Add(lockedResourceBySpid as UIElement);
+                    }
                 }
                 else if (queryResult.Faulted)
                 {
@@ -163,39 +182,42 @@ namespace SqlLockFinder.SessionDetail
             });
         }
 
-        private void CreateLockResourcesBySPID(List<LockedResourceDto> lockedResources)
+        private Dictionary<int, List<LockedResourceDto>> CreateLockResourcesBySPID(
+            List<LockedResourceDto> lockedResources)
         {
-            BlockedResourcesBySpidStackPanel.Children.Clear();
+            var result = new Dictionary<int, List<LockedResourceDto>>();
             LockedResourceDtos = lockedResources.Where(x => x.SPID == Session.SPID).ToList();
+            if (lockedResourceDtos.Count > 1000) return result;
             var otherSessionsGrouped = lockedResources.Where(x => x.SPID != Session.SPID).GroupBy(x => x.SPID);
             foreach (var otherResources in otherSessionsGrouped)
             {
                 var bothLockedResources =
                     otherResources.Where(x => LockedResourceDtos.Any(y => y.SameLockAs(x))).ToList();
-                var lockedResourceBySpid =
-                    lockResourceBySpidFactory.Create(otherResources.Key, bothLockedResources, Session);
-                BlockedResourcesBySpidStackPanel.Children.Add(lockedResourceBySpid as UIElement);
+                result.Add(otherResources.Key, bothLockedResources);
             }
+
+            return result;
         }
 
         public async void Kill()
         {
             if (Session == null) return;
 
-            if (Session.IsUserProcess 
-                    && MessageBox.Show(
-                    $"Are you certain you want to kill session with spid {Session?.SPID}?", 
+            if (Session.IsUserProcess
+                && MessageBox.Show(
+                    $"Are you certain you want to kill session with spid {Session?.SPID}?",
                     "Kill session?",
                     MessageBoxButton.YesNo) == MessageBoxResult.No)
             {
                 return;
             }
+
             if (!Session.IsUserProcess
-                      && MessageBox.Show(
-                          $"Are you certain you want to kill session with spid {Session?.SPID}?\nKilling a system session can have unforeseen consequences!",
-                          "Kill session?",
-                          MessageBoxButton.YesNo,
-                          MessageBoxImage.Exclamation) == MessageBoxResult.No)
+                && MessageBox.Show(
+                    $"Are you certain you want to kill session with spid {Session?.SPID}?\nKilling a system session can have unforeseen consequences!",
+                    "Kill session?",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Exclamation) == MessageBoxResult.No)
             {
                 return;
             }
@@ -221,10 +243,10 @@ namespace SqlLockFinder.SessionDetail
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
         private void UI(Action action)
         {
             Dispatcher.Invoke(action);
         }
-
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,6 +26,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
         private readonly IGetRowOfLockedResourceQuery getRowOfLockedResourceQuery;
         private readonly INotifyUser notifyUser;
         private bool allowQuery;
+        private const int MaxResults = 100;
 
         public LockResourceBySpid(
             int lockingSpid,
@@ -36,7 +38,8 @@ namespace SqlLockFinder.SessionDetail.LockResource
             this.getRowOfLockedResourceQuery = getRowOfLockedResourceQuery;
             this.notifyUser = notifyUser;
             LockingSPID = lockingSpid;
-            LockedResourceDtos = lockedResourceDtos;
+            TooManyResult = lockedResourceDtos.Count > MaxResults;
+            LockedResourceDtos = lockedResourceDtos.Take(MaxResults).ToList();
             Session = session;
             DataContext = this;
             AllowQuery = true;
@@ -44,6 +47,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
             InitializeComponent();
         }
 
+        public bool TooManyResult { get; set; }
         public SessionDto Session { get; set; }
         public int LockingSPID { get; set; }
         public List<LockedResourceDto> LockedResourceDtos { get; set; }

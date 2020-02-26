@@ -71,6 +71,7 @@
                 Grid.ColumnSpan="2"
                 Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
                 Text="Loading locked resources..."></TextBlock>
+           
             <StackPanel
                 Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
                 Orientation="Vertical"
@@ -117,7 +118,27 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <Label
+                    Visibility="{Binding HasLockedSummaryApplications, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
+                    HorizontalAlignment="Left"
+                    Margin="0,15,0,0"
+                    Content="Application locks:" />
+                <ItemsControl
+                    ItemsSource="{Binding LockedSummaryApplications}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
+            <TextBlock
+                Margin="5,15,0,0"
+                Grid.Row="4"
+                Grid.ColumnSpan="2"
+                Visibility="{Binding TooManyResourcesLocked, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
+                Foreground="DarkRed"
+                Text="Too many resources locked to show detailed conflicts"></TextBlock>
             <StackPanel
                 Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
                 Name="BlockedResourcesBySpidStackPanel"

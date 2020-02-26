@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using SqlLockFinder.SessionDetail.LockResource;
 
 namespace SqlLockFinder.SessionDetail.LockSummary
@@ -9,6 +11,7 @@ namespace SqlLockFinder.SessionDetail.LockSummary
         IEnumerable<LockSummaryDto> ByKeyLock(IEnumerable<LockedResourceDto> lockedResources);
         IEnumerable<LockSummaryDto> ByRIDLock(IEnumerable<LockedResourceDto> lockedResources);
         IEnumerable<LockSummaryDto> ByPageLock(IEnumerable<LockedResourceDto> lockedResources);
+        IEnumerable<LockSummaryDto> ByApplications(IEnumerable<LockedResourceDto> lockedResources);
     }
 
     public class LockSummary : ILockSummary
@@ -20,7 +23,7 @@ namespace SqlLockFinder.SessionDetail.LockSummary
                 return new List<LockSummaryDto>();
             }
 
-            return GetLockSummary(lockedResources.Where(x => x.IsKeyLock));
+            return GetLockSummary(lockedResources.Where(x => x.IsKeyLock), x => x.FullObjectName);
         }
 
         public IEnumerable<LockSummaryDto> ByRIDLock(IEnumerable<LockedResourceDto> lockedResources)
@@ -30,7 +33,7 @@ namespace SqlLockFinder.SessionDetail.LockSummary
                 return new List<LockSummaryDto>();
             }
 
-            return GetLockSummary(lockedResources.Where(x => x.IsRIDLock));
+            return GetLockSummary(lockedResources.Where(x => x.IsRIDLock), x => x.FullObjectName);
         }
 
         public IEnumerable<LockSummaryDto> ByPageLock(IEnumerable<LockedResourceDto> lockedResources)
@@ -40,12 +43,21 @@ namespace SqlLockFinder.SessionDetail.LockSummary
                 return new List<LockSummaryDto>();
             }
 
-            return GetLockSummary(lockedResources.Where(x => x.IsPageLock));
+            return GetLockSummary(lockedResources.Where(x => x.IsPageLock), x => x.FullObjectName);
+        }
+        public IEnumerable<LockSummaryDto> ByApplications(IEnumerable<LockedResourceDto> lockedResources)
+        {
+            if (lockedResources == null)
+            {
+                return new List<LockSummaryDto>();
+            }
+
+            return GetLockSummary(lockedResources.Where(x => x.IsApplicationLock), x => x.Description);
         }
 
-        private static IEnumerable<LockSummaryDto> GetLockSummary(IEnumerable<LockedResourceDto> lockedResources)
+        private static IEnumerable<LockSummaryDto> GetLockSummary(IEnumerable<LockedResourceDto> lockedResources, Func<LockedResourceDto, string> grouper)
         {
-            foreach (var lockedResourcesByObject in lockedResources.GroupBy(x => x.FullObjectName))
+            foreach (var lockedResourcesByObject in lockedResources.GroupBy(grouper))
             {
                 foreach (var g in lockedResourcesByObject.GroupBy(x => x.Mode))
                 {

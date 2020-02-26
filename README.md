@@ -6,6 +6,7 @@ Each connected session will be represented by a circle.  When sessions are locki
 - Visual representation of locking sessions (with pretty moving circles)
 - Find sessions by SPID
 - Kill locking sessions
+- View individual application locks
 - View exact locked rows with row content
 - View what sessions are exactly waiting for when suspended by another sessions lock
 
@@ -14,5 +15,6 @@ Each connected session will be represented by a circle.  When sessions are locki
 - Page
 - Key
 - RID
+- Application
 
 

@@ -104,6 +104,8 @@
             VerticalAlignment="Center"
             DataContext="{Binding Session}"
             Text="{Binding Command}"
+            FontWeight="Normal"
+            Style="{StaticResource ClickableStyle}"
             MouseDown="ShowCommand"/>
         <Label
             Grid.Row="6"

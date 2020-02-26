@@ -59,6 +59,7 @@
                 Server name:
             </Label>
             <TextBox
+                Text="{Binding DataSource}"
                 Grid.Row="0"
                 Grid.Column="1"
                 Height="25"/>

@@ -21,7 +21,7 @@ namespace SqlLockFinder.SessionCanvas
     {
         public Point NonCollidingPoint(int size)
         {
-            const int MaxLoop = 100000;
+            const int MaxLoop = 10000;
             int x = 0;
             int y = 0;
             var maxX = MaxX - (size * 2);

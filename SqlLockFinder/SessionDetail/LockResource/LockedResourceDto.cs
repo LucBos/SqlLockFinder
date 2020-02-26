@@ -19,6 +19,7 @@
         public bool IsPageLock => ResourceType == "PAGE";
         public bool IsTableLock => ResourceType == "OBJECT";
         public bool IsDbLock => ResourceType == "DATABASE";
+        public bool IsApplicationLock => ResourceType == "APPLICATION";
 
         public bool SameLockAs(LockedResourceDto other)
         {

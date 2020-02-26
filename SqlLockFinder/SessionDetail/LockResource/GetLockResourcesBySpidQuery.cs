@@ -54,7 +54,7 @@ SELECT t.request_session_id AS SPID,
 FROM sys.dm_tran_locks t
 LEFT JOIN sys.partitions p ON p.partition_id = t.resource_associated_entity_id
 WHERE t.resource_database_id = DB_ID() AND t.request_session_id IN @spids
-AND (t.resource_type = 'KEY' OR t.resource_type = 'RID' OR t.resource_type = 'PAGE')", new {spids = spidStrings});
+AND (t.resource_type = 'KEY' OR t.resource_type = 'RID' OR t.resource_type = 'PAGE' OR t.resource_type = 'APPLICATION')", new {spids = spidStrings});
                 queryResult.Result = (await result).ToList();
             }
             catch (Exception e)
