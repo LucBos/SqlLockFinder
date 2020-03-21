@@ -129,11 +129,11 @@ namespace SqlLockFinder
             private set
             {
                 sessions = value;
-                Databases = Sessions?.Select(x => x.DatabaseName)?.Distinct()?.ToList();
+                Databases = Sessions?.Select(x => x.DatabaseName).Distinct().OrderBy(x => x).ToList();
                 DefaultFilter = "All";
                 Databases?.Insert(0, DefaultFilter);
 
-                ProgramNames = Sessions?.Select(x => x.ProgramName)?.Distinct()?.ToList();
+                ProgramNames = Sessions?.Select(x => x.ProgramName).Distinct().OrderBy(x => x).ToList();
                 ProgramNames?.Insert(0, DefaultFilter);
 
                 ProgramNameFilter ??= DefaultFilter;
