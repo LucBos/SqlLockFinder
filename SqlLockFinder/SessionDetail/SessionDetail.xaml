@@ -26,15 +26,18 @@
                 Fill="{Binding Path=SessionCircle.Ellipse.Fill}"
                 Width="150"
                 Height="150" />
-            <TextBlock
+            <Label
                 Grid.Row="0"
                 Grid.ColumnSpan="2"
+                Background="Transparent"
                 FontSize="75"
                 Foreground="White"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Text="{Binding Path=SessionCircle.Session.SPID}" />
+                Content="{Binding Path=SessionCircle.Session.SPID}" />
             <StackPanel
+                Background="Transparent"
+                MouseDown="FocusLockCause"
                 Grid.Row="0"
                 Grid.ColumnSpan="2"
                 HorizontalAlignment="Right"
@@ -53,6 +56,8 @@
                 Grid.ColumnSpan="2"
                 FontSize="20"
                 Foreground="White"
+                Background="Transparent"
+                MouseDown="FocusLockCause"
                 Margin="9,8"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
@@ -69,9 +74,9 @@
             <TextBlock
                 Grid.Row="3"
                 Grid.ColumnSpan="2"
-                Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
-                Text="Loading locked resources..."></TextBlock>
-           
+                Visibility="{Binding LoadingLockSummary, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
+                Text="Loading lock summary...">
+            </TextBlock>
             <StackPanel
                 Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
                 Orientation="Vertical"
@@ -119,6 +124,19 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
                 <Label
+                    Visibility="{Binding HasLockedSummaryTables, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
+                    HorizontalAlignment="Left"
+                    Margin="0,15,0,0"
+                    Content="Locked tables:" />
+                <ItemsControl
+                    ItemsSource="{Binding LockedSummaryTables}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Label
                     Visibility="{Binding HasLockedSummaryApplications, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
                     HorizontalAlignment="Left"
                     Margin="0,15,0,0"
@@ -132,15 +150,32 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </StackPanel>
+            <Button Margin="5,15,0,0"
+                    Grid.Row="4"
+                    Grid.ColumnSpan="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Top"
+                    Content="Load detailed locks with other sessions"
+                    Visibility="{Binding LoadingDetailedLockResources, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
+                    Click="RetrieveDetailedLocks"></Button>
             <TextBlock
-                Margin="5,15,0,0"
                 Grid.Row="4"
                 Grid.ColumnSpan="2"
+                Margin="5,15,0,0"
+                Visibility="{Binding LoadingDetailedLockResources, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
+                Text="Loading locked resources..."></TextBlock>
+            <TextBlock
+                Margin="5,45,0,0"
+                Grid.Row="4"
+                Grid.ColumnSpan="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
                 Visibility="{Binding TooManyResourcesLocked, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
                 Foreground="DarkRed"
-                Text="Too many resources locked to show detailed conflicts"></TextBlock>
+                Text="! Too many resources locked to show detailed conflicts"></TextBlock>
             <StackPanel
-                Visibility="{Binding LoadingLockResources, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
+                Margin="5,25,0,0"
+                Visibility="{Binding LoadingDetailedLockResources, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
                 Name="BlockedResourcesBySpidStackPanel"
                 HorizontalAlignment="Stretch"
                 Grid.Row="4"

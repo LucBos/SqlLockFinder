@@ -59,7 +59,9 @@
                 Server name:
             </Label>
             <TextBox
+                Name="DataSourceTextBox"
                 Text="{Binding DataSource}"
+                KeyDown="LoginOnEnter"
                 Grid.Row="0"
                 Grid.Column="1"
                 Height="25"/>
@@ -82,6 +84,7 @@
             </Label>
             <TextBox
                 Text="{Binding Username}"
+                KeyDown="LoginOnEnter"
                 Margin="10,0,0,0"
                 Grid.Row="2"
                 Grid.Column="1"
@@ -95,6 +98,7 @@
             </Label>
             <PasswordBox
                 Name="PasswordBox"
+                KeyDown="LoginOnEnter"
                 Margin="10,0,0,0"
                 Grid.Row="3"
                 Grid.Column="1"
@@ -151,6 +155,7 @@
             </Label>
             <TextBox
                 Text="{Binding Connectionstring}"
+                KeyDown="LoginOnEnter"
                 Grid.Row="0"
                 Grid.Column="1"
                 Height="25"/>

@@ -30,7 +30,7 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
                         SET TerritoryDescription = TerritoryDescription
                         WHERE TerritoryDescription = 'New York'", transaction: transaction2);
 
-            Thread.Sleep(600);
+            Thread.Sleep(2000);
 
             connection2.ExecuteAsync(@"
                             UPDATE dbo.Territories
@@ -38,7 +38,7 @@ namespace SqlLockFinder.Tests.SessionDetail.LockResource
                             WHERE TerritoryDescription = 'Bellevue'
                             ", transaction: transaction2);
 
-            Thread.Sleep(600);
+            Thread.Sleep(2000);
 
             var queryResult = await new GetLockResourcesBySpidQuery(new TestConnectionContainer())
                 .Execute(new[] { spid1, spid2 }, "Northwind");

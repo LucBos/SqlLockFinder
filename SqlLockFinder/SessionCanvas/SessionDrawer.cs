@@ -118,8 +118,8 @@ namespace SqlLockFinder.SessionCanvas
                 if (sessionCircle == null)
                 {
                     sessionCircle = sessionCircleFactory.Create(sessionDto, sessionCircles);
-                    sessionCircle.OnMouseDown(SelectSessionCircle);
                     sessionCircle.OnMouseDown(BeginMove);
+                    sessionCircle.OnMouseDown(SelectSessionCircle);
                     sessionCircles.Add(sessionCircle);
                     canvas.Add(sessionCircle.UiElement, sessionDto.BlockedBy.HasValue ? 3 : 1);
                 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using SqlLockFinder.ActivityMonitor;
 using SqlLockFinder.Infrastructure;
 using SqlLockFinder.SessionCanvas;
@@ -23,37 +24,38 @@ namespace SqlLockFinder.SessionDetail
     public partial class SessionDetail : UserControl, ISessionDetail, INotifyPropertyChanged
     {
         private readonly IGetLockResourcesBySpidQuery getLockResourcesBySpidQuery;
+        private readonly IGetLockSummaryFromSpidQuery getLockSummaryFromSpidQuery;
         private readonly ILockResourceBySpidFactory lockResourceBySpidFactory;
         private readonly IKillSessionQuery killSessionQuery;
         private readonly INotifyUser notifyUser;
-        private readonly ILockSummary lockSummary;
         private ISessionCircle sessionCircle;
         private List<LockedResourceDto> lockedResourceDtos;
-        private bool loadingLockResources;
+        private bool loadingDetailedLockResources;
+        private bool loadingDLockSummary;
         private ISessionCircleList sessionCircles;
         private ISessionCircle lockCause;
 
         public SessionDetail() : this(
             new GetLockResourcesBySpidQuery(ConnectionContainer.Instance),
+            new GetLockSummaryFromSpidQuery(ConnectionContainer.Instance),
             new LockResourceBySpidFactory(ConnectionContainer.Instance, new NotifyUser()),
             new KillSessionQuery(ConnectionContainer.Instance),
-            new NotifyUser(),
-            new LockSummary.LockSummary())
+            new NotifyUser())
         {
         }
 
         public SessionDetail(
             IGetLockResourcesBySpidQuery getLockResourcesBySpidQuery,
+            IGetLockSummaryFromSpidQuery getLockSummaryFromSpidQuery,
             ILockResourceBySpidFactory lockResourceBySpidFactory,
             IKillSessionQuery killSessionQuery,
-            INotifyUser notifyUser,
-            ILockSummary lockSummary)
+            INotifyUser notifyUser)
         {
             this.getLockResourcesBySpidQuery = getLockResourcesBySpidQuery;
+            this.getLockSummaryFromSpidQuery = getLockSummaryFromSpidQuery;
             this.lockResourceBySpidFactory = lockResourceBySpidFactory;
             this.killSessionQuery = killSessionQuery;
             this.notifyUser = notifyUser;
-            this.lockSummary = lockSummary;
             this.DataContext = this;
             InitializeComponent();
         }
@@ -65,12 +67,28 @@ namespace SqlLockFinder.SessionDetail
             {
                 sessionCircle = value;
                 SessionOVerviewControl.Session = sessionCircle?.Session;
+                BlockedResourcesBySpidStackPanel.Children.Clear();
+                lockedResourceDtos?.Clear();
+
+                LockedSummaryApplications = new List<LockSummaryDto>();
+                LockedSummaryTables = new List<LockSummaryDto>();
+                LockedSummaryRows = new List<LockSummaryDto>();
+                LockedSummaryRIDs = new List<LockSummaryDto>();
+                LockedSummaryPages = new List<LockSummaryDto>();
+
+                OnPropertyChanged(nameof(LockedSummaryApplications));
+                OnPropertyChanged(nameof(LockedSummaryTables));
+                OnPropertyChanged(nameof(LockedSummaryRows));
+                OnPropertyChanged(nameof(LockedSummaryPages));
+                OnPropertyChanged(nameof(LockedSummaryRIDs));
+
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ItemWasSelected));
                 OnPropertyChanged(nameof(Session));
                 OnPropertyChanged(nameof(LockCause));
                 OnPropertyChanged(nameof(LockedWith));
-                RetrieveLocks();
+                OnPropertyChanged(nameof(TooManyResourcesLocked));
+                RetrieveLockSummary();
             }
         }
 
@@ -109,31 +127,46 @@ namespace SqlLockFinder.SessionDetail
             }
         }
 
-        public bool LoadingLockResources
+        public bool LoadingDetailedLockResources
         {
-            get => loadingLockResources;
+            get => loadingDetailedLockResources;
             set
             {
-                loadingLockResources = value;
+                loadingDetailedLockResources = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(TooManyResourcesLocked));
             }
         }
 
-        public IEnumerable<LockSummaryDto> LockedSummaryRows => lockSummary.ByKeyLock(lockedResourceDtos);
+        public bool LoadingLockSummary
+        {
+            get => loadingDLockSummary;
+            set
+            {
+                loadingDLockSummary = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public IEnumerable<LockSummaryDto> LockedSummaryRIDs => lockSummary.ByRIDLock(lockedResourceDtos);
+        public IEnumerable<LockSummaryDto> LockedSummaryRows { get; set; }
+        public IEnumerable<LockSummaryDto> LockedSummaryTables { get; set; }
 
-        public IEnumerable<LockSummaryDto> LockedSummaryPages => lockSummary.ByPageLock(lockedResourceDtos);
-        public IEnumerable<LockSummaryDto> LockedSummaryApplications => lockSummary.ByApplications(lockedResourceDtos);
+        public IEnumerable<LockSummaryDto> LockedSummaryRIDs { get; set; }
 
+        public IEnumerable<LockSummaryDto> LockedSummaryPages { get; set; }
+
+        public IEnumerable<LockSummaryDto> LockedSummaryApplications { get; set; }
+
+        public bool HasLockedSummaryTables => LockedSummaryTables.Any();
         public bool HasLockedSummaryRows => LockedSummaryRows.Any();
 
         public bool HasLockedSummaryRIDs => LockedSummaryRIDs.Any();
 
         public bool HasLockedSummaryPages => LockedSummaryPages.Any();
+
         public bool HasLockedSummaryApplications => LockedSummaryApplications.Any();
-        public bool TooManyResourcesLocked => !LoadingLockResources && lockedResourceDtos.Count > 5000;
+
+        public bool TooManyResourcesLocked => !LoadingDetailedLockResources && lockedResourceDtos != null && lockedResourceDtos.Count > 5000;
 
         public SessionDto Session => SessionCircle?.Session;
 
@@ -143,11 +176,49 @@ namespace SqlLockFinder.SessionDetail
 
         public bool ItemWasSelected => SessionCircle != null;
 
-        private async void RetrieveLocks()
+        private async void RetrieveLockSummary()
         {
-            if (Session == null || LockedWith == null || LoadingLockResources) return;
+            if (Session == null || LockedWith == null || LoadingDetailedLockResources) return;
 
-            UI(() => LoadingLockResources = true);
+            UI(() => LoadingLockSummary = true);
+
+            var queryResult =
+                await getLockSummaryFromSpidQuery.Execute(sessionCircle.Session.SPID, Session.DatabaseName);
+
+            UI(() =>
+            {
+                LoadingLockSummary = false;
+                if (queryResult.HasValue)
+                {
+                    LockedSummaryApplications = queryResult.Result.Where(x => x.IsApplicationLock).ToList();
+                    LockedSummaryPages = queryResult.Result.Where(x => x.IsPageLock).ToList();
+                    LockedSummaryRIDs = queryResult.Result.Where(x => x.IsRIDLock).ToList();
+                    LockedSummaryRows = queryResult.Result.Where(x => x.IsKeyLock).ToList();
+                    LockedSummaryTables = queryResult.Result.Where(x => x.IsTableLock).ToList();
+
+                    OnPropertyChanged(nameof(LockedSummaryApplications));
+                    OnPropertyChanged(nameof(LockedSummaryPages));
+                    OnPropertyChanged(nameof(LockedSummaryRIDs));
+                    OnPropertyChanged(nameof(LockedSummaryRows));
+                    OnPropertyChanged(nameof(LockedSummaryTables));
+                    OnPropertyChanged(nameof(HasLockedSummaryPages));
+                    OnPropertyChanged(nameof(HasLockedSummaryApplications));
+                    OnPropertyChanged(nameof(HasLockedSummaryRIDs));
+                    OnPropertyChanged(nameof(HasLockedSummaryRows));
+                    OnPropertyChanged(nameof(HasLockedSummaryTables));
+                }
+                else if (queryResult.Faulted)
+                {
+                    notifyUser.Notify(queryResult);
+                }
+            });
+        }
+
+        private async void RetrieveDetailedLocks(object sender, RoutedEventArgs routedEventArgs)
+        {
+            if (Session == null || LockedWith == null || LoadingDetailedLockResources) return;
+
+            UI(() => LoadingDetailedLockResources = true);
 
             var spids = LockedWith
                 .Select(x => x.SPID)
@@ -163,7 +234,7 @@ namespace SqlLockFinder.SessionDetail
 
             UI(() =>
             {
-                LoadingLockResources = false;
+                LoadingDetailedLockResources = false;
                 if (queryResult.HasValue && lockedPerSpid != null)
                 {
                     BlockedResourcesBySpidStackPanel.Children.Clear();
@@ -234,6 +305,16 @@ namespace SqlLockFinder.SessionDetail
                     SessionCircle = null;
                 }
             });
+        }
+
+        private void FocusLockCause(object sender, RoutedEventArgs routedEventArgs)
+        {
+            if (LockCause != null)
+            {
+                SessionCircle.Selected = false;
+                LockCause.Selected = true;
+                SessionCircle = LockCause;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

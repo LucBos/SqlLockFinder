@@ -6,6 +6,11 @@ using NUnit.Framework;
 
 namespace SqlLockFinder.Tests
 {
+    public class Connection_TestLock
+    {
+        public static ReaderWriterLockSlim connectionLock = new ReaderWriterLockSlim();
+    }
+
     public class DoubleConnection_TestBase
     {
         protected SqlConnection connection1;
@@ -17,6 +22,7 @@ namespace SqlLockFinder.Tests
         [SetUp]
         public void SetupConnections()
         {
+            Connection_TestLock.connectionLock.EnterWriteLock();
             connection1 =
                 new SqlConnection(
                     $"Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=False;Application Name=SqlLockFinder{Guid.NewGuid()};Connection Timeout=30;");
@@ -34,9 +40,16 @@ namespace SqlLockFinder.Tests
         [TearDown]
         public void TeardownConnections()
         {
-            cancellationTokenSource?.Cancel();
-            connection1?.Close();
-            connection2?.Close();
+            try
+            {
+                cancellationTokenSource?.Cancel();
+                connection1?.Close();
+                connection2?.Close();
+            }
+            finally
+            {
+                Connection_TestLock.connectionLock.ExitWriteLock();
+            }
         }
     }
 
@@ -49,6 +62,7 @@ namespace SqlLockFinder.Tests
         [SetUp]
         public void SetupConnections()
         {
+            Connection_TestLock.connectionLock.EnterWriteLock();
             connection1 =
                 new SqlConnection(
                     $"Data Source=.;Initial Catalog=master;Integrated Security=SSPI;MultipleActiveResultSets=False;Application Name=SqlLockFinder{Guid.NewGuid()};Connection Timeout=30;");
@@ -61,8 +75,15 @@ namespace SqlLockFinder.Tests
         [TearDown]
         public void TeardownConnections()
         {
-            cancellationTokenSource?.Cancel();
-            connection1?.Close();
+            try
+            {
+                cancellationTokenSource?.Cancel();
+                connection1?.Close();
+            }
+            finally
+            {
+                Connection_TestLock.connectionLock.ExitWriteLock();
+            }
         }
     }
 }

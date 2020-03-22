@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using Microsoft.Win32;
 using SqlLockFinder.Infrastructure;
 
@@ -37,6 +38,7 @@ namespace SqlLockFinder.Connect
             ConnectBy = ConnectBy.Properties;
             this.DataContext = this;
             InitializeComponent();
+            DataSourceTextBox.Focus();
         }
 
         public ConnectBy ConnectBy
@@ -163,6 +165,12 @@ namespace SqlLockFinder.Connect
             {
                 MessageBox.Show("Could not connect to the database.");
             }
+        }
+
+        private void LoginOnEnter(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter) Connect(null, null);
+
         }
     }
 }
