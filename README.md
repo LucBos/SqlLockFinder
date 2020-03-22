@@ -2,6 +2,9 @@
 Is a visual aid to find locks in your database.
 Each connected session will be represented by a circle.  When sessions are locking each other then these sessions will connected with a line.
 
+## Download compiled executable
+http://www.sqllockfinder.com/
+
 ## Features
 - Visual representation of locking sessions (with pretty moving circles)
 - Find sessions by SPID
