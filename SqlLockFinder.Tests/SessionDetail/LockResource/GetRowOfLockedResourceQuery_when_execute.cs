@@ -39,7 +39,7 @@ SELECT CustomerID
 FROM dbo.Customers
 WHERE CustomerID = 'GODOS'", transaction: transaction1).First();
 
-            var result = await getRowOfLockedResourceQuery.Execute("Northwind", "dbo.Customers", lockres);
+            var result = await getRowOfLockedResourceQuery.Execute("Northwind", "dbo.Customers", "PK_Customers", lockres);
 
             Assert.AreEqual(result.Result.CustomerID, record.CustomerID);
             Assert.AreEqual(result.Result.CompanyName, record.CompanyName);
@@ -77,7 +77,7 @@ SELECT CustomerID
 FROM dbo.Customers
 WHERE CustomerID = 'GODOS'", transaction: transaction1).First();
 
-            var result = await getRowOfLockedResourceQuery.Execute("Northwind", "dbo.Customers", lockres);
+            var result = await getRowOfLockedResourceQuery.Execute("Northwind", "dbo.Customers", "PostalCode", lockres);
 
             Assert.AreEqual(result.Result.CustomerID, record.CustomerID);
             Assert.AreEqual(result.Result.CompanyName, record.CompanyName);
