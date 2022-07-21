@@ -12,6 +12,7 @@ http://www.sqllockfinder.com/
 - View individual application locks
 - View exact locked rows with row content
 - View what sessions are exactly waiting for when suspended by another sessions lock
+- Snapshot locking information for detailed study
 
 ## Supported locks
 - Table
