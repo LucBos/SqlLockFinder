@@ -36,12 +36,12 @@ namespace SqlLockFinder.SessionDetail.LockResource
 SELECT t.request_session_id AS SPID,
     CASE
         WHEN t.resource_type = 'OBJECT' THEN OBJECT_NAME(t.resource_associated_entity_id)
-        WHEN t.resource_associated_entity_id = 0 THEN 'n/a'
+        WHEN t.resource_associated_entity_id = 0 THEN t.resource_description
         ELSE OBJECT_NAME(p.object_id)
     END AS EntityName,
     CASE
         WHEN t.resource_type = 'OBJECT' THEN OBJECT_SCHEMA_NAME(t.resource_associated_entity_id)
-        WHEN t.resource_associated_entity_id = 0 THEN 'n/a'
+        WHEN t.resource_associated_entity_id = 0 THEN ''
         ELSE OBJECT_SCHEMA_NAME(p.object_id)
     END AS SchemaName,
     p.index_id as IndexId,
@@ -50,9 +50,11 @@ SELECT t.request_session_id AS SPID,
     t.resource_description AS Description,
     t.request_mode AS Mode,
     t.request_status AS Status,
-    t.request_owner_type AS RequestType
+    t.request_owner_type AS RequestType,
+	i.name as IndexName
 FROM sys.dm_tran_locks t
 LEFT JOIN sys.partitions p ON p.partition_id = t.resource_associated_entity_id
+LEFT JOIN sys.indexes i ON i.index_id = p.index_id and i.object_id = p.object_id 
 WHERE t.resource_database_id = DB_ID() AND t.request_session_id IN @spids
 AND (t.resource_type = 'KEY' OR t.resource_type = 'RID' OR t.resource_type = 'PAGE' OR t.resource_type = 'APPLICATION')", new {spids = spidStrings});
                 queryResult.Result = (await result).ToList();

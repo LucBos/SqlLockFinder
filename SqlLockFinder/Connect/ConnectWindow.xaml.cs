@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -25,6 +26,7 @@ namespace SqlLockFinder.Connect
         private string dataSource;
         private string username;
         private string password;
+        private bool isLoading;
 
         public ConnectWindow()
             : this(ConnectionContainer.Instance)
@@ -91,6 +93,16 @@ namespace SqlLockFinder.Connect
             }
         }
 
+        public bool IsLoading
+        {
+            get => isLoading;
+            set
+            {
+                isLoading = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string[] AuthenticationModes => new[] {WindowsAuthentication, SqlServerAuthentication};
 
         public string SelectedAuthentication
@@ -132,45 +144,63 @@ namespace SqlLockFinder.Connect
 
         private void Connect(object sender, RoutedEventArgs e)
         {
-            try
+            var connectionString = string.Empty;
+            switch (ConnectBy)
             {
-                switch (ConnectBy)
+                case ConnectBy.Properties:
+                    var security = SelectedAuthentication == WindowsAuthentication
+                        ? "Integrated Security=SSPI"
+                        : $"User=\"{Username}\";Password=\"{PasswordBox.Password}\"";
+                    connectionString =
+                        $"Data Source={DataSource};{security};Application Name=SqlLockFinder;Connection Timeout=360;MultipleActiveResultSets=true;";
+                    break;
+                case ConnectBy.Connectionstring:
+                    connectionString = Connectionstring;
+                    break;
+                case ConnectBy.UDL:
+                    if (string.IsNullOrEmpty(openFileDialog.FileName))
+                    {
+                        MessageBox.Show("Please select a valid udl file");
+                        return;
+                    }
+
+                    connectionString = new UdlParser().ParseConnectionString(openFileDialog.OpenFile());
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            IsLoading = true;
+            Task.Run(() =>
+            {
+                try
                 {
-                    case ConnectBy.Properties:
-                        var security = SelectedAuthentication == WindowsAuthentication
-                            ? "Integrated Security=SSPI"
-                            : $"User=\"{Username}\";Password=\"{PasswordBox.Password}\"";
-                        connectionContainer.Create($"Data Source={DataSource};{security};Application Name=SqlLockFinder;Connection Timeout=15;MultipleActiveResultSets=true;");
-                        break;
-                    case ConnectBy.Connectionstring:
-                        connectionContainer.Create(Connectionstring);
-                        break;
-                    case ConnectBy.UDL:
-                        if (string.IsNullOrEmpty(openFileDialog.FileName))
-                        {
-                            MessageBox.Show("Please select a valid udl file");
-                            return;
-                        }
-
-                        connectionContainer.Create(new UdlParser().ParseConnectionString(openFileDialog.OpenFile()));
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    connectionContainer.Create(connectionString);
+                    UI(() =>
+                    {
+                        this.DialogResult = true;
+                        this.Close();
+                    });
                 }
-
-                this.DialogResult = true;
-                this.Close();
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show("Could not connect to the database.");
-            }
+                catch (Exception exception)
+                {
+                    UI(() => { MessageBox.Show("Could not connect to the database."); });
+                }
+                finally
+                {
+                    UI(() => isLoading = false);
+                }
+            });
         }
 
         private void LoginOnEnter(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter) Connect(null, null);
+        }
 
+        private void UI(Action action)
+        {
+            Dispatcher.Invoke(action);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace SqlLockFinder.SessionCanvas
         void Fault();
         void Reset();
         void Select(int spid);
+        void EnableCache();
+        void DisableCache();
     }
     public class SessionDrawer : ISessionDrawer
     {
@@ -60,6 +62,16 @@ namespace SqlLockFinder.SessionCanvas
         {
             var sessionCircle = sessionCircles.FirstOrDefault(x => x.Session.SPID == spid);
             SelectSessionCircle(sessionCircle);
+        }
+
+        public void EnableCache()
+        {
+            sessionDetail.EnableCache();
+        }
+
+        public void DisableCache()
+        {
+            sessionDetail.DisableCache();
         }
 
         public void Draw(List<SessionDto> sessions)

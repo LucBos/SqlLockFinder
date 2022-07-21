@@ -160,6 +160,16 @@
                 Grid.Column="1"
                 Height="25"/>
         </Grid>
+        <Grid
+            Visibility="{Binding Path=IsLoading, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
+            Margin="5"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Stretch"
+            Grid.Row="1" >
+            <TextBlock
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center">Loading...</TextBlock>
+        </Grid>
         <StackPanel
             HorizontalAlignment="Right"
             Grid.Row="2"

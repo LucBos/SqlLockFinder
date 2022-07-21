@@ -27,6 +27,8 @@ namespace SqlLockFinder
         private string programNameFilter;
         private string DefaultFilter;
         private string spidToFind;
+        private bool isPlaying;
+        private DispatcherTimer activityMonitorTimer;
 
         public MainWindow(IConnectionContainer connectionContainer, IActivityMonitorQuery activityMonitorQuery,
             ISessionDrawer sessionDrawer)
@@ -43,6 +45,7 @@ namespace SqlLockFinder
         {
             this.connectionContainer = ConnectionContainer.Instance;
             this.activityMonitorQuery = new ActivityMonitorQuery(this.connectionContainer);
+            this.Context = Infrastructure.Context.Instance;
             this.DataContext = this;
 
             InitializeComponent();
@@ -64,10 +67,12 @@ namespace SqlLockFinder
             var connectionWindow = new ConnectWindow();
             if (connectionWindow.ShowDialog() == true)
             {
-                DispatcherTimer timer = new DispatcherTimer();
-                timer.Interval = TimeSpan.FromSeconds(2);
-                timer.Tick += async (sender2, e2) => await RetrieveSessions();
-                timer.Start();
+                IsPlaying = true;
+                activityMonitorTimer?.Stop();
+                activityMonitorTimer = new DispatcherTimer();
+                activityMonitorTimer.Interval = TimeSpan.FromSeconds(2);
+                activityMonitorTimer.Tick += async (sender2, e2) => await RetrieveSessions();
+                activityMonitorTimer.Start();
             }
         }
 
@@ -107,6 +112,22 @@ namespace SqlLockFinder
             if (e.Key == Key.Enter)
             {
                 FindSpid();
+            }
+        }
+
+        private void PlayOrPause(object sender, RoutedEventArgs e)
+        {
+            if (IsPlaying)
+            {
+                activityMonitorTimer?.Stop();
+                sessionDrawer?.EnableCache();
+                IsPlaying = false;
+            }
+            else
+            {
+                sessionDrawer?.DisableCache();
+                activityMonitorTimer?.Start();
+                IsPlaying = true;
             }
         }
 
@@ -187,9 +208,19 @@ namespace SqlLockFinder
                 OnPropertyChanged();
             }
         }
+        public bool IsPlaying
+        {
+            get => isPlaying;
+            set
+            {
+                isPlaying = value;
+                OnPropertyChanged();
+            }
+        }
 
         public List<string> Databases { get; set; }
         public List<string> ProgramNames { get; set; }
+        public Context Context { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -211,5 +242,6 @@ namespace SqlLockFinder
         {
             Dispatcher.Invoke(action);
         }
+
     }
 }

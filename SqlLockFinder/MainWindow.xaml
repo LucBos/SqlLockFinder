@@ -5,14 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SqlLockFinder"
         xmlns:sessionDetail="clr-namespace:SqlLockFinder.SessionDetail"
+        xmlns:infrastructure="clr-namespace:SqlLockFinder.Infrastructure"
         mc:Ignorable="d"
         Title="SQL Lock finder"
         WindowState="Maximized"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-        SizeChanged="OnSizeChanged">
+        SizeChanged="OnSizeChanged" d:DesignHeight="371.964" d:DesignWidth="1431.944">
     <Window.Resources>
         <BitmapImage x:Key="LinkImage" UriSource="/Content/link-symbol.png" />
         <BitmapImage x:Key="KillImage" UriSource="/Content/kill.png" />
+        <BitmapImage x:Key="PlayImage" UriSource="/Content/play.png" />
+        <BitmapImage x:Key="PauseImage" UriSource="/Content/pause.png" />
         <BitmapImage x:Key="SearchImage" UriSource="/Content/search.png" />
     </Window.Resources>
     <Grid>
@@ -70,6 +73,17 @@
                             Width="400"
                             Background="Transparent" />
                     </StackPanel>
+
+                    <RibbonButton 
+                        Visibility="{Binding IsPlaying, Converter={StaticResource VisibilityTrueToHiddenConverter}}"
+                        SmallImageSource="{StaticResource PlayImage}"
+                        Click="PlayOrPause"
+                        Label="Capture"></RibbonButton>
+                    <RibbonButton 
+                        Visibility="{Binding IsPlaying, Converter={StaticResource VisibilityTrueToVisibleConverter}}"
+                        SmallImageSource="{StaticResource PauseImage}"
+                        Label="Snapshot"
+                        Click="PlayOrPause"></RibbonButton>
                 </RibbonGroup>
                 <RibbonGroup>
                     <StackPanel
@@ -106,6 +120,11 @@
                             Click="FindSpid"></RibbonButton>
                     </StackPanel>
                 </RibbonGroup>
+                <RibbonGroup>
+                    <RibbonCheckBox 
+                        IsChecked="{Binding Path=Context.AutoRetrieveDetailedLocks}"
+                        Label="Auo retrieve detailed locks"></RibbonCheckBox>
+                </RibbonGroup>
             </RibbonTab>
             <RibbonTab
                 Header="Session"
@@ -126,6 +145,7 @@
             Margin="0,0,400,0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"/>
+        
         <sessionDetail:SessionDetail
             Grid.Column="1"
             Grid.Row="1" 

@@ -12,6 +12,7 @@
         public string Mode { get; set; }
         public string Status { get; set; }
         public string RequestType { get; set; }
+        public string IndexName { get; set; }
 
         public string FullObjectName => $"{SchemaName ?? ""}.{EntityName ?? ""}";
         public bool IsKeyLock => ResourceType == "KEY";

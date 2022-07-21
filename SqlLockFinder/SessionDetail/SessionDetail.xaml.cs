@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,6 +20,8 @@ namespace SqlLockFinder.SessionDetail
     {
         ISessionCircle SessionCircle { get; set; }
         ISessionCircleList SessionCircles { get; set; }
+        Task DisableCache();
+        Task EnableCache();
     }
 
     public partial class SessionDetail : UserControl, ISessionDetail, INotifyPropertyChanged
@@ -34,6 +37,8 @@ namespace SqlLockFinder.SessionDetail
         private bool loadingDLockSummary;
         private ISessionCircleList sessionCircles;
         private ISessionCircle lockCause;
+        private Dictionary<int, QueryResult<List<LockSummaryDto>>> summaryCache = new Dictionary<int, QueryResult<List<LockSummaryDto>>>();
+        private Dictionary<int, QueryResult<List<LockedResourceDto>>> detailsCache = new Dictionary<int, QueryResult<List<LockedResourceDto>>>();
 
         public SessionDetail() : this(
             new GetLockResourcesBySpidQuery(ConnectionContainer.Instance),
@@ -51,6 +56,7 @@ namespace SqlLockFinder.SessionDetail
             IKillSessionQuery killSessionQuery,
             INotifyUser notifyUser)
         {
+            Context = Context.Instance;
             this.getLockResourcesBySpidQuery = getLockResourcesBySpidQuery;
             this.getLockSummaryFromSpidQuery = getLockSummaryFromSpidQuery;
             this.lockResourceBySpidFactory = lockResourceBySpidFactory;
@@ -107,6 +113,28 @@ namespace SqlLockFinder.SessionDetail
             }
         }
 
+        public async Task DisableCache()
+        {
+           summaryCache.Clear();
+           detailsCache.Clear();
+        }
+
+        public async Task EnableCache()
+        {
+            foreach (var circle in SessionCircles)
+            {
+                var summary =
+                    await getLockSummaryFromSpidQuery.Execute(circle.Session.SPID, circle.Session.DatabaseName);
+                summaryCache.Add(circle.Session.SPID, summary);
+
+                if (Context.AutoRetrieveDetailedLocks)
+                {
+                    var details = await GetLockResourcesBySpid(SessionCircles.GetLockedWith(circle), circle.Session);
+                    detailsCache.Add(circle.Session.SPID, details);
+                }
+
+            }
+        }
 
         public List<LockedResourceDto> LockedResourceDtos
         {
@@ -157,14 +185,14 @@ namespace SqlLockFinder.SessionDetail
 
         public IEnumerable<LockSummaryDto> LockedSummaryApplications { get; set; }
 
-        public bool HasLockedSummaryTables => LockedSummaryTables.Any();
-        public bool HasLockedSummaryRows => LockedSummaryRows.Any();
+        public bool HasLockedSummaryTables => LockedSummaryTables?.Any() ?? false;
+        public bool HasLockedSummaryRows => LockedSummaryRows?.Any() ?? false;
 
-        public bool HasLockedSummaryRIDs => LockedSummaryRIDs.Any();
+        public bool HasLockedSummaryRIDs => LockedSummaryRIDs?.Any() ?? false;
 
-        public bool HasLockedSummaryPages => LockedSummaryPages.Any();
+        public bool HasLockedSummaryPages => LockedSummaryPages?.Any() ?? false;
 
-        public bool HasLockedSummaryApplications => LockedSummaryApplications.Any();
+        public bool HasLockedSummaryApplications => LockedSummaryApplications?.Any() ?? false;
 
         public bool TooManyResourcesLocked => !LoadingDetailedLockResources && lockedResourceDtos != null && lockedResourceDtos.Count > 5000;
 
@@ -175,6 +203,7 @@ namespace SqlLockFinder.SessionDetail
         public ISessionCircle LockCause => sessionCircles?.GetLockCause(sessionCircle);
 
         public bool ItemWasSelected => SessionCircle != null;
+        public Context Context { get; set; }
 
         private async void RetrieveLockSummary()
         {
@@ -182,8 +211,20 @@ namespace SqlLockFinder.SessionDetail
 
             UI(() => LoadingLockSummary = true);
 
-            var queryResult =
-                await getLockSummaryFromSpidQuery.Execute(sessionCircle.Session.SPID, Session.DatabaseName);
+            QueryResult<List<LockSummaryDto>> queryResult;
+            if (summaryCache.ContainsKey(sessionCircle.Session.SPID))
+            {
+                queryResult = summaryCache[sessionCircle.Session.SPID];
+            }
+            else
+            {
+                queryResult = await getLockSummaryFromSpidQuery.Execute(sessionCircle.Session.SPID, Session.DatabaseName);
+            }
+
+            if (Context.AutoRetrieveDetailedLocks)
+            {
+                await RetrieveDetailedLocks();
+            }
 
             UI(() =>
             {
@@ -214,17 +255,22 @@ namespace SqlLockFinder.SessionDetail
             });
         }
 
-        private async void RetrieveDetailedLocks(object sender, RoutedEventArgs routedEventArgs)
+        private async void RetrieveDetailedLocks(object sender, RoutedEventArgs routedEventArgs) => await RetrieveDetailedLocks();
+        private async Task RetrieveDetailedLocks()
         {
             if (Session == null || LockedWith == null || LoadingDetailedLockResources) return;
 
             UI(() => LoadingDetailedLockResources = true);
 
-            var spids = LockedWith
-                .Select(x => x.SPID)
-                .Union(new[] {Session.SPID})
-                .ToArray();
-            var queryResult = await getLockResourcesBySpidQuery.Execute(spids, Session.DatabaseName);
+            QueryResult<List<LockedResourceDto>> queryResult;
+            if (detailsCache.ContainsKey(Session.SPID))
+            {
+                queryResult = detailsCache[Session.SPID];
+            }
+            else
+            {
+                queryResult = await GetLockResourcesBySpid(LockedWith, Session);
+            }
 
             Dictionary<int, List<LockedResourceDto>> lockedPerSpid = null;
             if (queryResult.HasValue)
@@ -251,6 +297,16 @@ namespace SqlLockFinder.SessionDetail
                     notifyUser.Notify(queryResult);
                 }
             });
+        }
+
+        private async Task<QueryResult<List<LockedResourceDto>>> GetLockResourcesBySpid(IEnumerable<SessionDto> lockedWith, SessionDto session)
+        {
+            var spids = lockedWith
+                .Select(x => x.SPID)
+                .Union(new[] { session.SPID })
+                .ToArray();
+            var queryResult = await getLockResourcesBySpidQuery.Execute(spids, session.DatabaseName);
+            return queryResult;
         }
 
         private Dictionary<int, List<LockedResourceDto>> CreateLockResourcesBySPID(

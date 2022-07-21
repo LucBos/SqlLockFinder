@@ -73,7 +73,7 @@ namespace SqlLockFinder.SessionDetail.LockResource
         {
             UI(() => AllowQuery = false);
 
-            var queryResult = await getRowOfLockedResourceQuery.Execute(Session.DatabaseName, selectedItem.FullObjectName,
+            var queryResult = await getRowOfLockedResourceQuery.Execute(Session.DatabaseName, selectedItem.FullObjectName, selectedItem.IndexName,
                 selectedItem.Description);
 
             UI(() =>

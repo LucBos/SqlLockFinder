@@ -27,14 +27,15 @@
             IsEnabled="{Binding AllowQuery}"
             SelectionMode="Single">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="FullObjectName" Width="25">
+                <DataGridTemplateColumn Header="Details" Width="25">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button Click="ShowLockedRow">+</Button>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="FullObjectName" Binding="{Binding Path=FullObjectName}" Width="auto"/>
+                <DataGridTextColumn Header="Full Object Name" Binding="{Binding Path=FullObjectName}" Width="auto"/>
+                <DataGridTextColumn Header="Index name" Binding="{Binding Path=IndexName}" Width="auto"/>
                 <DataGridTextColumn Header="Description" Binding="{Binding Path=Description}" Width="125"/>
                 <DataGridTextColumn Header="Resource type" Binding="{Binding Path=ResourceType}" Width="auto"/>
                 <DataGridTextColumn Header="Mode" Binding="{Binding Path=Mode}" Width="auto"/>
